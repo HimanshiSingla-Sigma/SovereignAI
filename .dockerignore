@@ -1,0 +1,29 @@
+# Keep host build state out of the image. Without this, the frontend
+# Dockerfile's `COPY frontend ./` overwrites the node_modules installed inside
+# the container with the host's (glibc vs musl native binaries), which breaks
+# `docker compose up` on any machine that has run `npm install` locally.
+**/node_modules
+**/dist
+**/dist-ssr
+
+# Local secrets / env overrides must never be baked into an image.
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Python and test artifacts
+**/__pycache__
+**/*.pyc
+.pytest_cache
+**/.pytest_cache
+*.db
+backend/*.db
+
+# VCS and editor noise
+.git
+.gitignore
+**/.DS_Store
+**/*.tsbuildinfo

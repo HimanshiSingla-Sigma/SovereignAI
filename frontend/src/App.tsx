@@ -1,112 +1,175 @@
-import React, { useState } from 'react';
-import { useAuth } from './context/AuthContext';
-import { LoginView } from './components/auth/LoginView';
-import { Sidebar } from './components/layout/Sidebar';
-import { Header } from './components/layout/Header';
+import { Suspense, lazy, useEffect } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { useAuthStore } from '@/store/authStore'
+import { useAudioUnlock } from '@/hooks/useSound'
+import AppShell from '@/components/layout/AppShell'
+import RequirePermission from '@/components/RequirePermission'
+import { Loading } from '@/components/ui'
+import LoginPage from '@/features/auth/LoginPage'
 
-// Dashboards
-import { OperatorDashboard } from './components/dashboard/OperatorDashboard';
-import { EngineerDashboard } from './components/dashboard/EngineerDashboard';
-import { SafetyOfficerDashboard } from './components/dashboard/SafetyOfficerDashboard';
-import { AdminDashboard } from './components/dashboard/AdminDashboard';
+// Heavy screens (Three.js, force graph, charts) load on demand.
+const DashboardPage = lazy(() => import('@/features/dashboard/DashboardPage'))
+const GodViewPage = lazy(() => import('@/features/god-view/GodViewPage'))
+const DigitalTwinPage = lazy(() => import('@/features/digital-twin/DigitalTwinPage'))
+const TelemetryPage = lazy(() => import('@/features/telemetry/TelemetryPage'))
+const AnalyticsPage = lazy(() => import('@/features/analytics/AnalyticsPage'))
+const SimulationPage = lazy(() => import('@/features/simulation/SimulationPage'))
+const AIAssistantPage = lazy(() => import('@/features/ai-assistant/AIAssistantPage'))
+const RagPage = lazy(() => import('@/features/rag/RagPage'))
+const GraphRagPage = lazy(() => import('@/features/graphrag/GraphRagPage'))
+const DocumentsPage = lazy(() => import('@/features/documents/DocumentsPage'))
+const SafetyPage = lazy(() => import('@/features/safety/SafetyPage'))
+const ApprovalsPage = lazy(() => import('@/features/approvals/ApprovalsPage'))
+const NetworkPage = lazy(() => import('@/features/network/NetworkPage'))
+const AdminPage = lazy(() => import('@/features/admin/AdminPage'))
 
-// Views
-import { DigitalTwinView } from './components/views/DigitalTwinView';
-import { AIAssistantView } from './components/views/AIAssistantView';
-import { WhatIfSimulationView } from './components/views/WhatIfSimulationView';
-import { KnowledgeGraphView } from './components/views/KnowledgeGraphView';
-import { DocumentsView } from './components/views/DocumentsView';
-import { AuditLogView } from './components/views/AuditLogView';
-import { SecurityView } from './components/views/SecurityView';
+export default function App() {
+  const { token, stage, hydrating, hydrate } = useAuthStore()
 
-export const App: React.FC = () => {
-  const { user, loading } = useAuth();
-  const [currentTab, setCurrentTab] = useState<string>('dashboard');
-  const [assistantMachineTarget, setAssistantMachineTarget] = useState<string | undefined>();
+  useAudioUnlock()
 
-  if (loading) {
+  // Re-establish the session from the stored token on a hard refresh.
+  useEffect(() => {
+    if (token && stage === 'authenticated') void hydrate()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  if (!token || stage !== 'authenticated') return <LoginPage />
+
+  if (hydrating) {
     return (
-      <div className="min-h-screen bg-industrial-950 flex items-center justify-center text-cyan-400 font-mono text-xs">
-        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping mr-2" />
-        <span>Initializing Sovereign Industrial AI Environment...</span>
+      <div className="flex min-h-screen items-center justify-center">
+        <Loading label="Restoring sovereign session…" />
       </div>
-    );
+    )
   }
-
-  if (!user) {
-    return <LoginView />;
-  }
-
-  const handleNavigate = (tab: string, param?: string) => {
-    setCurrentTab(tab);
-    if (tab === 'assistant' && param) {
-      setAssistantMachineTarget(param);
-    }
-  };
-
-  // Render role-specific default dashboard when tab is 'dashboard'
-  const renderDashboard = () => {
-    switch (user.role) {
-      case 'ADMINISTRATOR':
-        return <AdminDashboard />;
-      case 'SAFETY_OFFICER':
-        return <SafetyOfficerDashboard />;
-      case 'ENGINEER':
-        return <EngineerDashboard onNavigate={handleNavigate} />;
-      case 'OPERATOR':
-      default:
-        return <OperatorDashboard />;
-    }
-  };
-
-  const renderContent = () => {
-    switch (currentTab) {
-      case 'dashboard':
-        return renderDashboard();
-      case 'twin':
-      case 'telemetry':
-        return <DigitalTwinView />;
-      case 'assistant':
-        return <AIAssistantView initialMachine={assistantMachineTarget} />;
-      case 'simulation':
-        return <WhatIfSimulationView />;
-      case 'documents':
-        return <DocumentsView />;
-      case 'graphrag':
-        return <KnowledgeGraphView />;
-      case 'safety':
-        return <SafetyOfficerDashboard />;
-      case 'security':
-        return <SecurityView />;
-      case 'audit':
-        return <AuditLogView />;
-      case 'users':
-        return <AdminDashboard />;
-      default:
-        return renderDashboard();
-    }
-  };
 
   return (
-    <div className="flex h-screen bg-industrial-950 text-slate-100 overflow-hidden font-sans">
-      {/* Navigation Sidebar */}
-      <Sidebar
-        currentTab={currentTab}
-        onSelectTab={(tab) => {
-          setCurrentTab(tab);
-          setAssistantMachineTarget(undefined);
-        }}
-      />
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-y-auto p-6">
-          {renderContent()}
-        </main>
-      </div>
-    </div>
-  );
-};
-
-export default App;
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <Loading />
+        </div>
+      }
+    >
+      <Routes>
+        <Route element={<AppShell />}>
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route
+            path="/dashboard"
+            element={
+              <RequirePermission permission="safety:read">
+                <DashboardPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/god-view"
+            element={
+              <RequirePermission permission="machines:read">
+                <GodViewPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/digital-twin"
+            element={
+              <RequirePermission permission="machines:read">
+                <DigitalTwinPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/telemetry"
+            element={
+              <RequirePermission permission="telemetry:read">
+                <TelemetryPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <RequirePermission permission="telemetry:read">
+                <AnalyticsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/simulation"
+            element={
+              <RequirePermission permission="simulation:run">
+                <SimulationPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/ai-assistant"
+            element={
+              <RequirePermission permission="ai:chat">
+                <AIAssistantPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/rag"
+            element={
+              <RequirePermission permission="rag:query">
+                <RagPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/graphrag"
+            element={
+              <RequirePermission permission="graphrag:query">
+                <GraphRagPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/documents"
+            element={
+              <RequirePermission permission="documents:read">
+                <DocumentsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/safety"
+            element={
+              <RequirePermission permission="safety:read">
+                <SafetyPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/approvals"
+            element={
+              <RequirePermission permission="safety:read">
+                <ApprovalsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/network"
+            element={
+              <RequirePermission permission="safety:read">
+                <NetworkPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <RequirePermission permission="users:read">
+                <AdminPage />
+              </RequirePermission>
+            }
+          />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Route>
+      </Routes>
+    </Suspense>
+  )
+}

@@ -24,6 +24,8 @@ from app.api.ai_routes import router as ai_router
 from app.api.hardware_routes import router as hardware_router
 from app.api.audit_routes import router as audit_router
 from app.api.security_routes import router as security_router
+from app.api.network_routes import router as network_router
+from app.api.document_page_routes import router as document_page_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -67,6 +69,8 @@ app.include_router(ai_router, prefix=settings.API_V1_STR)
 app.include_router(hardware_router, prefix=settings.API_V1_STR)
 app.include_router(audit_router, prefix=settings.API_V1_STR)
 app.include_router(security_router, prefix=settings.API_V1_STR)
+app.include_router(network_router, prefix=settings.API_V1_STR)
+app.include_router(document_page_router, prefix=settings.API_V1_STR)
 
 @app.get("/api/health")
 def health_check():
