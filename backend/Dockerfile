@@ -8,30 +8,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy backend requirements
+# Copy requirements and install dependencies
+COPY backend/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy backend source code and test suite
 COPY backend/app ./app
 COPY backend/tests ./tests
 COPY .env.example ./.env
-
-# Install Python packages
-RUN pip install --no-cache-dir \
-    fastapi \
-    uvicorn \
-    pydantic \
-    pydantic-settings \
-    sqlalchemy \
-    psycopg2-binary \
-    pyotp \
-    qrcode \
-    pyjwt \
-    numpy \
-    scipy \
-    scikit-learn \
-    pytest \
-    pytest-asyncio \
-    python-multipart \
-    psutil \
-    pypdfium2
 
 EXPOSE 8000
 
