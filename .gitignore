@@ -1,0 +1,103 @@
+# =======================================================
+# Sovereign Industrial AI Workbench — .gitignore
+# =======================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Python Environments & Virtual Envs
+.env
+.env.*
+!.env.example
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+htmlcov/
+.hypothesis/
+
+# Build & Packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Local Database & Storage Data
+*.db
+*.sqlite
+*.sqlite3
+backend/sovereign_workbench.db
+backend/data/storage/*
+!backend/data/storage/.gitkeep
+backend/data/documents/*
+!backend/data/documents/.gitkeep
+backend/data/vectordb/*
+!backend/data/vectordb/.gitkeep
+backend/data/audit/*
+!backend/data/audit/.gitkeep
+
+# AI Models & Weights (.gguf / .bin / .pt / .safetensors)
+# Large weights (>500MB) must be pulled locally or mounted, never tracked in Git
+*.gguf
+*.bin
+*.pt
+*.pth
+*.onnx
+*.safetensors
+backend/models/*.gguf
+backend/models/*.bin
+!backend/models/README.txt
+!backend/models/.gitkeep
+
+# Node.js / Frontend Artifacts
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.eslintcache
+
+# Logs & Temporary Files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tmp
+*.temp
+
+# IDEs & Code Editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*~
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini

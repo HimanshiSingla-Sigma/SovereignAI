@@ -1,0 +1,1 @@
+Optional GGUF models can be dropped into this folder.
