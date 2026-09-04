@@ -1,28 +1,142 @@
+/* Self-hosted fonts, bundled from node_modules — no CDN request at runtime. */
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/700.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
   body {
-    @apply bg-[#0b0f17] text-slate-100 min-h-screen selection:bg-cyan-500 selection:text-white;
+    @apply bg-base text-ink font-sans antialiased;
+    /* Subtle control-room grid texture. */
+    background-image:
+      linear-gradient(rgba(35, 42, 51, 0.35) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(35, 42, 51, 0.35) 1px, transparent 1px);
+    background-size: 44px 44px;
+    background-attachment: fixed;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Telemetry readouts are tabular so digits stop jittering as they update. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    @apply font-mono;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0b0e13;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #232a33;
+    border-radius: 6px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #33404d;
+  }
+
+  :focus-visible {
+    outline: 2px solid #f5a623;
+    outline-offset: 2px;
   }
 }
 
-/* Custom scrollbars for industrial theme */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+@layer components {
+  .panel {
+    @apply rounded-card border border-hairline bg-card shadow-panel;
+  }
+
+  .panel-head {
+    @apply flex items-center justify-between gap-3 border-b border-hairline px-4 py-3;
+  }
+
+  .label-xs {
+    @apply text-[10px] uppercase tracking-[0.14em] text-muted;
+  }
+
+  /* Every interactive control clears the 44px touch target for tablet use. */
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-ctl border border-hairline
+      bg-raised px-4 text-sm font-medium text-ink transition-colors
+      hover:border-accent/50 hover:text-accent active:bg-hairline
+      disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-hairline disabled:hover:text-ink;
+  }
+
+  .btn-primary {
+    @apply border-accent/70 bg-accent text-[#20160a] hover:bg-[#ffb733] hover:text-[#20160a] hover:border-accent;
+  }
+
+  .btn-danger {
+    @apply border-crit/60 bg-crit/15 text-crit hover:border-crit hover:bg-crit/25 hover:text-crit;
+  }
+
+  .btn-sm {
+    @apply min-h-[44px] px-3 text-xs;
+  }
+
+  .field {
+    @apply min-h-[44px] w-full rounded-ctl border border-hairline bg-[#0b0e13] px-3 text-sm text-ink
+      placeholder:text-muted/60 focus:border-accent/60 focus:outline-none;
+  }
+
+  .chip {
+    @apply inline-flex min-h-[44px] items-center gap-2 rounded-full border border-hairline bg-raised
+      px-3 text-xs font-medium text-muted transition-colors hover:border-accent/50 hover:text-ink;
+  }
+
+  .chip-active {
+    @apply border-accent/70 bg-accent/10 text-accent;
+  }
+
+  .table-scroll {
+    @apply -mx-4 overflow-x-auto px-4;
+  }
+
+  /* Diagonal hazard tape used by the war-room frame. */
+  .hazard-tape {
+    background-image: repeating-linear-gradient(
+      45deg,
+      #f85149 0,
+      #f85149 16px,
+      #0e1116 16px,
+      #0e1116 32px
+    );
+    background-size: 64px 64px;
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: #111827;
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
 
-::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+/* Respect the OS reduced-motion setting; Lite performance mode is the in-app equivalent. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

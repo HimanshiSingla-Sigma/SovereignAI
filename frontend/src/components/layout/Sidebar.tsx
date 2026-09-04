@@ -1,101 +1,106 @@
-import React from 'react';
-import { 
-  LayoutDashboard, Cpu, Activity, Bot, BookOpen, 
-  Share2, ShieldAlert, Sliders, ShieldCheck, 
-  Users, FileText, Settings, LogOut, Wrench
-} from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { NavLink } from 'react-router-dom'
+import { X, Zap } from 'lucide-react'
+import { GROUP_LABELS, NAV_ITEMS, type NavItem } from './nav'
+import { useAuthStore } from '@/store/authStore'
+import { useAlertStore } from '@/store/alertStore'
+import { useSound } from '@/hooks/useSound'
+import { severityOf } from '@/lib/format'
+import { StatusDot } from '@/components/ui'
 
-interface SidebarProps {
-  currentTab: string;
-  onSelectTab: (tab: string) => void;
+function NavRow({ item, onNavigate }: { item: NavItem; onNavigate: () => void }) {
+  const { play } = useSound()
+  const Icon = item.icon
+  return (
+    <NavLink
+      to={item.to}
+      onClick={() => {
+        play('click')
+        onNavigate()
+      }}
+      className={({ isActive }) =>
+        `flex min-h-[44px] items-center gap-3 rounded-ctl px-3 text-sm transition-colors ${
+          isActive
+            ? 'border border-accent/30 bg-accent/10 text-accent'
+            : 'border border-transparent text-muted hover:bg-raised hover:text-ink'
+        }`
+      }
+    >
+      <Icon className="h-4 w-4 shrink-0" />
+      <span className="truncate">{item.label}</span>
+    </NavLink>
+  )
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => {
-  const { user, logout, hasPermission } = useAuth();
+export default function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const permissions = useAuthStore((s) => s.permissions)
+  const systemState = useAlertStore((s) => s.systemState)
+  const emergency = useAlertStore((s) => s.emergency)
 
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, perm: 'machines:read' },
-    { id: 'twin', label: 'Digital Twin', icon: Cpu, perm: 'machines:read' },
-    { id: 'telemetry', label: 'Live Telemetry', icon: Activity, perm: 'telemetry:read' },
-    { id: 'assistant', label: 'AI Assistant & Agents', icon: Bot, perm: 'ai:chat' },
-    { id: 'simulation', label: 'What-If Simulation', icon: Sliders, perm: 'simulation:run' },
-    { id: 'documents', label: 'Private RAG & SOPs', icon: BookOpen, perm: 'documents:read' },
-    { id: 'graphrag', label: 'Knowledge Graph', icon: Share2, perm: 'graphrag:query' },
-    { id: 'safety', label: 'Safety & Actuators', icon: ShieldAlert, perm: 'safety:read' },
-    { id: 'security', label: 'Security & Guards', icon: ShieldCheck, perm: 'security:configure' },
-    { id: 'audit', label: 'Audit Trail', icon: FileText, perm: 'audit:read' },
-    { id: 'users', label: 'User Governance', icon: Users, perm: 'users:create' },
-  ];
+  const visible = NAV_ITEMS.filter((item) => permissions.includes(item.permission))
+  const groups = (['OPERATIONS', 'INTELLIGENCE', 'GOVERNANCE'] as const).filter((g) =>
+    visible.some((i) => i.group === g),
+  )
 
-  const filteredItems = navItems.filter(item => hasPermission(item.perm));
-
-  const getRoleColor = (role?: string) => {
-    switch (role) {
-      case 'ADMINISTRATOR': return 'bg-purple-900/60 text-purple-300 border-purple-700';
-      case 'ENGINEER': return 'bg-cyan-900/60 text-cyan-300 border-cyan-700';
-      case 'SAFETY_OFFICER': return 'bg-amber-900/60 text-amber-300 border-amber-700';
-      case 'OPERATOR': return 'bg-emerald-900/60 text-emerald-300 border-emerald-700';
-      default: return 'bg-slate-800 text-slate-300 border-slate-700';
-    }
-  };
+  const state = emergency ? 'EMERGENCY' : systemState
 
   return (
-    <aside className="w-64 bg-industrial-900 border-r border-industrial-800 flex flex-col h-screen select-none">
-      {/* Brand Header */}
-      <div className="p-4 border-b border-industrial-800 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-          <Wrench className="w-5 h-5" />
-        </div>
-        <div>
-          <h1 className="font-bold text-sm text-slate-100 tracking-wider">SOVEREIGN AI</h1>
-          <p className="text-[10px] text-cyan-400 font-mono tracking-widest">INDUSTRIAL WORKBENCH</p>
-        </div>
-      </div>
-
-      {/* User Badge */}
-      <div className="p-3 mx-3 my-2 rounded-lg bg-industrial-950/60 border border-industrial-800">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-200 truncate">{user?.username}</span>
-          <span className={`text-[10px] px-1.5 py-0.5 rounded border font-mono ${getRoleColor(user?.role)}`}>
-            {user?.role}
-          </span>
-        </div>
-        <p className="text-[11px] text-slate-400 mt-1 truncate">{user?.email}</p>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
-        {filteredItems.map(item => {
-          const Icon = item.icon;
-          const isActive = currentTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => onSelectTab(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                isActive
-                  ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-industrial-800/60'
-              }`}
-            >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-cyan-400' : 'text-slate-500'}`} />
-              <span className="truncate">{item.label}</span>
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* Footer / Logout */}
-      <div className="p-3 border-t border-industrial-800">
+    <>
+      {/* Scrim for the mobile drawer */}
+      {open && (
         <button
-          onClick={logout}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs text-rose-400 hover:bg-rose-500/10 transition"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Sign Out</span>
-        </button>
-      </div>
-    </aside>
-  );
-};
+          type="button"
+          aria-label="Close navigation"
+          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col border-r border-hairline bg-sidebar
+          transition-transform duration-200 lg:static lg:z-auto lg:translate-x-0
+          ${open ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        <div className="flex items-center gap-2.5 border-b border-hairline px-4 py-3.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-ctl bg-accent text-[#20160a]">
+            <Zap className="h-4 w-4" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-semibold text-ink">Sovereign AI</div>
+            <div className="truncate text-[10px] uppercase tracking-[0.14em] text-muted">Industrial Workbench</div>
+          </div>
+          <button
+            type="button"
+            className="flex h-11 w-11 items-center justify-center rounded-ctl text-muted lg:hidden"
+            onClick={onClose}
+            aria-label="Close navigation"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
+          {groups.map((group) => (
+            <div key={group}>
+              <div className="label-xs px-3 pb-2">{GROUP_LABELS[group]}</div>
+              <div className="space-y-1">
+                {visible
+                  .filter((i) => i.group === group)
+                  .map((item) => (
+                    <NavRow key={item.to} item={item} onNavigate={onClose} />
+                  ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        <div className="border-t border-hairline px-4 py-3 safe-bottom">
+          <div className="flex items-center gap-2 text-xs">
+            <StatusDot severity={severityOf(state)} pulse={state !== 'NORMAL'} />
+            <span className="text-muted">Plant state</span>
+            <span className="tnum ml-auto font-medium text-ink">{state}</span>
+          </div>
+        </div>
+      </aside>
+    </>
+  )
+}
