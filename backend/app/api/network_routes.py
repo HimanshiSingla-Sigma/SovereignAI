@@ -2,8 +2,12 @@
 Network sovereignty monitor (ADDITIVE — no existing route is modified).
 
 Provides the evidence behind the platform's air-gap claim: which sockets the
-host actually holds open, whether any of them leave the local network, and a
-live egress probe. Gated on `safety:read` so every operator role can verify
+host actually holds open and whether any of them leave the local network.
+
+Observation is strictly passive — this module never opens a socket to a
+non-local address. On an air-gapped plant an outbound probe is itself an
+egress attempt, so the monitor must not be the one thing breaking the air gap
+it is there to prove. Gated on `safety:read` so every operator role can verify
 sovereignty, matching the existing `require_permission(...)` style.
 """
 import ipaddress
@@ -13,16 +17,29 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends
 
+from app.core.audit import AuditLogger
 from app.core.rbac import require_permission
 
 router = APIRouter(prefix="/network", tags=["Network Sovereignty"])
 
-# TEST-NET-3 (RFC 5737). Reserved for documentation and guaranteed never to be
-# routed to a real service, so the probe proves egress is blocked without ever
-# contacting a third party.
-EGRESS_PROBE_HOST = "203.0.113.1"
-EGRESS_PROBE_PORT = 80
-EGRESS_PROBE_TIMEOUT = 0.35
+# Reported instead of a probe result: this monitor observes, it never dials out.
+EGRESS_METHOD = "PASSIVE_OBSERVATION"
+EGRESS_TARGET = "none - no outbound probe is performed"
+
+
+def _bytes_sent_now() -> int:
+    try:
+        import psutil
+
+        counters = psutil.net_io_counters()
+        return int(counters.bytes_sent) if counters else 0
+    except Exception:
+        return 0
+
+
+# Baseline captured at import so `outbound_bytes` reports what this process has
+# sent since startup rather than the host's lifetime total.
+_BYTES_SENT_BASELINE = _bytes_sent_now()
 
 
 def _is_internal(host: str) -> bool:
@@ -100,44 +117,37 @@ def _collect_interfaces() -> List[Dict[str, Any]]:
     return interfaces
 
 
-def _egress_probe() -> str:
-    """Attempt one short outbound TCP connect to an unroutable documentation IP."""
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(EGRESS_PROBE_TIMEOUT)
-    try:
-        sock.connect((EGRESS_PROBE_HOST, EGRESS_PROBE_PORT))
-        return "REACHABLE"
-    except (socket.timeout, TimeoutError):
-        return "BLOCKED"
-    except OSError:
-        return "BLOCKED"
-    finally:
-        sock.close()
-
-
-def _io_counters() -> int:
-    try:
-        import psutil
-
-        counters = psutil.net_io_counters()
-        return int(counters.bytes_sent) if counters else 0
-    except Exception:
-        return 0
+def _outbound_bytes_since_start() -> int:
+    """Bytes sent by this host since import, floored at zero across counter resets."""
+    return max(0, _bytes_sent_now() - _BYTES_SENT_BASELINE)
 
 
 @router.get("/egress-status")
 def get_egress_status(payload: dict = Depends(require_permission("safety:read"))):
     conns = _collect_connections()
-    egress_test = _egress_probe()
     external = conns["external_endpoints"]
+    is_secure = len(external) == 0
+
+    if not is_secure:
+        # A socket leaving the local network is a sovereignty breach: record it
+        # in the immutable audit chain rather than only rendering it in the UI.
+        AuditLogger.log(
+            who=payload.get("sub", "unknown"),
+            what="EGRESS_EXTERNAL_DETECTED",
+            resource="NetworkSovereigntyMonitor",
+            result="ALERT",
+            reason=f"{len(external)} external connection(s) observed on the host socket table",
+            details={"external_endpoints": external[:20]},
+        )
 
     return {
-        "air_gapped": len(external) == 0 and egress_test == "BLOCKED",
+        "air_gapped": is_secure,
+        "status": "SECURE" if is_secure else "ALERT",
         "external_connections": len(external),
         "internal_connections": conns["internal"],
-        "outbound_bytes": _io_counters(),
-        "egress_test": egress_test,
-        "egress_target": f"{EGRESS_PROBE_HOST}:{EGRESS_PROBE_PORT}",
+        "outbound_bytes": _outbound_bytes_since_start(),
+        "egress_test": EGRESS_METHOD,
+        "egress_target": EGRESS_TARGET,
         "external_endpoints": external,
         "interfaces": _collect_interfaces(),
         "checked_at": datetime.now(timezone.utc).isoformat(),
