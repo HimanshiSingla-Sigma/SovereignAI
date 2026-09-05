@@ -53,12 +53,18 @@ def trigger_emergency_shutdown(
 
     # If user is Safety Officer or Admin, they have authority to trip immediately
     if role in ["SAFETY_OFFICER", "ADMINISTRATOR"]:
-        result = SimulatedActuatorLayer.execute_command(
-            actuator_id="ESD-RELAY-01",
-            machine_id=req.machine_id,
-            command="EMERGENCY_SHUTDOWN",
-            issued_by=f"{user} ({role})"
-        )
+        try:
+            result = SimulatedActuatorLayer.execute_command(
+                actuator_id="ESD-RELAY-01",
+                machine_id=req.machine_id,
+                command="EMERGENCY_SHUTDOWN",
+                issued_by=f"{user} ({role})",
+                issued_by_role=role
+            )
+        except PermissionError as e:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
         return {
             "status": "EXECUTED",
             "message": f"Emergency Shutdown executed directly by {role}.",
