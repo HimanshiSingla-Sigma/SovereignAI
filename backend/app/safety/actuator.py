@@ -5,6 +5,10 @@ from app.safety.safety_engine import DeterministicSafetyEngine
 from app.safety.approval import ApprovalService
 from app.core.audit import AuditLogger
 
+# Roles that carry standing authority to trip an actuator directly, without a
+# separate Human-in-the-Loop approval record.
+DIRECT_TRIP_ROLES = {"SAFETY_OFFICER", "ADMINISTRATOR"}
+
 class SimulatedActuatorLayer:
     """
     Simulated physical actuator interface for emergency shutdown and control valves.
@@ -21,7 +25,8 @@ class SimulatedActuatorLayer:
         machine_id: str,
         command: str,  # EMERGENCY_SHUTDOWN, THROTTLE_SPEED, ISOLATE_VALVE, RESET_SYSTEM
         issued_by: str,
-        approval_id: Optional[str] = None
+        approval_id: Optional[str] = None,
+        issued_by_role: Optional[str] = None
     ) -> Dict[str, Any]:
         asset = AssetRegistry.get_by_id(machine_id)
         if not asset:
@@ -36,11 +41,9 @@ class SimulatedActuatorLayer:
                 if appr and appr["status"] == "APPROVED" and appr["target_resource"] == machine_id:
                     is_authorized = True
 
-            # Alternatively, check if the deterministic safety engine mandated an automatic shutdown
-            if not is_authorized:
-                # Direct check if user is a Safety Officer executing manual ESD
-                if "Safety" in issued_by or issued_by == "admin":
-                    is_authorized = True
+            # Alternatively, the caller may hold standing authority to trip directly
+            if not is_authorized and issued_by_role in DIRECT_TRIP_ROLES:
+                is_authorized = True
 
             if not is_authorized:
                 AuditLogger.log(
