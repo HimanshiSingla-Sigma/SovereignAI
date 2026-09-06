@@ -1,7 +1,28 @@
 from typing import List, Dict, Set
-from fastapi import Depends, HTTPException, status, Header
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+try:
+    from fastapi import Depends, HTTPException, status, Header
+    from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+except ImportError:
+    Depends = lambda x: x
+    class HTTPException(Exception):
+        def __init__(self, status_code: int = 400, detail: str = ""):
+            super().__init__(detail)
+            self.status_code = status_code
+            self.detail = detail
+    class _Status:
+        HTTP_401_UNAUTHORIZED = 401
+        HTTP_403_FORBIDDEN = 403
+    status = _Status()
+    Header = lambda *args, **kwargs: None
+    class HTTPBearer:
+        def __init__(self, *args, **kwargs): pass
+        def __call__(self, *args, **kwargs): return None
+    class HTTPAuthorizationCredentials:
+        credentials = ""
+
 from app.core.security import decode_token
+
 
 # Role Names
 ROLE_ADMINISTRATOR = "ADMINISTRATOR"

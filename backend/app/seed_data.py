@@ -295,16 +295,21 @@ def seed_database():
                 db.add(doc_record)
                 db.flush()
 
-                # Chunk document
-                pages = [{"page_number": 1, "text": doc_def["content"]}]
-                chunks = DocumentChunker.chunk_document(
-                    doc_id=doc_def["doc_id"],
-                    title=doc_def["title"],
-                    classification=doc_def["classification"],
-                    pages=pages
-                )
+            # Chunk document
+            pages = [{"page_number": 1, "text": doc_def["content"]}]
+            chunks = DocumentChunker.chunk_document(
+                doc_id=doc_def["doc_id"],
+                title=doc_def["title"],
+                classification=doc_def["classification"],
+                pages=pages
+            )
 
-                for ch in chunks:
+            for ch in chunks:
+                existing_c = db.query(DocumentChunk).filter_by(
+                    document_id=doc_record.id,
+                    chunk_index=int(ch["chunk_id"].split("-")[-1])
+                ).first()
+                if not existing_c:
                     chunk_row = DocumentChunk(
                         document_id=doc_record.id,
                         chunk_index=int(ch["chunk_id"].split("-")[-1]),
@@ -314,7 +319,7 @@ def seed_database():
                         token_count=ch["word_count"]
                     )
                     db.add(chunk_row)
-                    all_chunks_to_index.append(ch)
+                all_chunks_to_index.append(ch)
 
         # Ingest into vector store
         if all_chunks_to_index:

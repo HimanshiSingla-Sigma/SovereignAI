@@ -381,8 +381,50 @@ export interface ModelRegistryItem {
   ram_required_gb: number
   vram_required_gb: number
   is_compatible: boolean
+  is_installed?: boolean
+  is_fallback?: boolean
+  file_size_gb?: number
   recommended_tier: string
   description: string
+}
+
+export interface ModelRoutingCandidate {
+  model_id: string
+  name: string
+  status: string
+  is_feasible: boolean
+  score: number
+  execution_mode: string
+  target_hardware?: string
+  ram_required_gb?: number
+  vram_required_gb?: number
+  reason?: string
+}
+
+export interface ModelRoutingDecision {
+  selected_model_id: string
+  selected_model_name: string
+  task: string
+  execution_mode: string
+  target_hardware: string
+  is_fallback: boolean
+  score: number
+  reasons: string[]
+  hardware_snapshot: Record<string, unknown>
+  resource_budget: {
+    max_safe_ram_gb: number
+    max_safe_vram_gb: number
+    model_ram_required_gb: number
+    model_vram_required_gb: number
+    ram_safety_headroom_gb: number
+    max_ram_utilization_limit: number
+  }
+  candidates_evaluated: ModelRoutingCandidate[]
+}
+
+export interface ModelRoutingTableResponse {
+  hardware_summary: HardwareProfileResponse
+  routing_table: Record<string, ModelRoutingDecision>
 }
 
 export interface CompatibilityReport {
@@ -437,6 +479,28 @@ export interface PromptGuardResult {
 }
 
 export interface SandboxResult {
+  status: 'SUCCESS' | 'BLOCKED' | 'ERROR' | string
+  exit_code?: number
+  execution_time_seconds?: number
+  execution_time_ms?: number
+  stdout?: string
+  output_variables?: Record<string, unknown>
+  variable_types?: Record<string, string>
+  security_audit?: {
+    ast_passed?: boolean
+    forbidden_modules_checked?: number
+    forbidden_calls_checked?: number
+    violations?: string[]
+  }
+  environment?: {
+    isolation_mode?: string
+    sandbox_security_policy?: string
+    network_access?: string
+    filesystem_access?: string
+  }
+  summary?: string
+  error?: string
+  violations?: string[]
   [k: string]: unknown
 }
 
@@ -476,3 +540,94 @@ export interface DocumentPagesResponse {
   page_count: number
   pages: DocumentPage[]
 }
+
+// ---------- Sovereign Orchestrator ----------
+export interface OrchestratorPlanStep {
+  step_number: number
+  action: string
+  capability: string
+  handler_type: string
+  tool_or_model?: string | null
+  args?: Record<string, unknown>
+  requires_approval: boolean
+  action_type?: string | null
+}
+
+export interface OrchestratorPlanResponse {
+  plan_id: string
+  prompt: string
+  detected_intent: string
+  confidence: number
+  is_compound: boolean
+  workflow_sequence: string[]
+  planning_level: string
+  steps: OrchestratorPlanStep[]
+  total_steps: number
+}
+
+export interface OrchestratorExecuteRequest {
+  prompt: string
+  machine_id?: string | null
+  file_path?: string | null
+  file_type?: string | null
+  auto_approve_controlled?: boolean
+}
+
+export interface OrchestratorTraceStep {
+
+  step_number: number
+  action: string
+  capability: string
+  handler_type: string
+  target?: string | null
+  status: string
+  input_data?: Record<string, unknown> | null
+  output_summary: string
+  execution_time_ms: number
+  approval_id?: string | null
+}
+
+export interface OrchestratorExecuteResponse {
+  request_id: string
+  prompt: string
+  status: string
+  detected_intent: string
+  planning_level: string
+  confidence: number
+  steps_executed: number
+  total_time_ms: number
+  model_used?: string
+  is_fallback?: boolean
+  execution_trace: OrchestratorTraceStep[]
+  final_answer: string
+  pending_approval?: Record<string, unknown> | null
+  citations?: Array<Record<string, unknown>>
+  knowledge_facts?: string[]
+  safety_check: string
+}
+
+export interface ActiveModelStatusResponse {
+  active_model_name: string
+  active_model_path?: string | null
+  active_task?: string | null
+  is_loaded_in_memory: boolean
+  is_fallback: boolean
+  llama_cpp_installed: boolean
+  llama_cpp_version?: string | null
+  llama_cpp_status: string
+}
+
+export interface CapabilityItem {
+  id: string
+  name: string
+  type: string
+  description: string
+  is_controlled: boolean
+  examples: string[]
+}
+
+export interface CapabilityListResponse {
+  total: number
+  capabilities: CapabilityItem[]
+}
+

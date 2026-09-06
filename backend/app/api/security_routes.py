@@ -52,7 +52,7 @@ def get_gateway_status(payload: dict = Depends(require_permission("security:conf
     import os
     from app.hardware.profile import HardwareProfile
     from app.core.config import settings
-    profile = HardwareProfile().to_dict()
+    profile = HardwareProfile().get_summary()
     models_dir = settings.LOCAL_MODEL_PATH
     gguf_files = []
     if os.path.exists(models_dir):

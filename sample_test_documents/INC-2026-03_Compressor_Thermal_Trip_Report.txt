@@ -1,0 +1,30 @@
+SOVEREIGN PLANT INCIDENT INVESTIGATION REPORT
+INCIDENT ID: INC-2026-03-02
+CLASSIFICATION: CONFIDENTIAL
+ASSET: Compressor-001 (Screw Air Compressor, Plant Bay Line-1)
+DATE OF INCIDENT: March 2, 2026 | TIME: 14:22 UTC
+INVESTIGATOR: Senior Plant Reliability Engineer
+
+1. EXECUTIVE SUMMARY
+On March 2, 2026, Compressor-001 tripped on emergency high-temperature interlock when discharge airend temperature peaked at 94.2°C, breaching the safety shutdown threshold of 88.0°C. Plant compressed air header pressure fell from 7.5 bar to 4.2 bar, threatening automated pneumatic fixtures across Production Line-1.
+
+2. CHRONOLOGY OF EVENTS
+- 13:45: Ambient bay temperature measured at 31.5°C. Compressor running at 100% full load capacity.
+- 14:05: Oil differential pressure warning alarm generated (DP = 1.45 bar, nominal is 0.40 bar).
+- 14:18: Discharge temperature rapid climb: 76°C -> 84°C -> 91°C within 180 seconds.
+- 14:22: Emergency thermal runaway trip activated by hardware safety sensor at 94.2°C. Machine halted safely.
+
+3. ROOT CAUSE ANALYSIS (5-WHYS)
+1. Why did the compressor trip? Airend discharge temperature reached 94.2°C.
+2. Why was temperature high? Oil cooling circulation flow rate decreased by 62%.
+3. Why did oil flow decrease? Coalescing air-oil separator filter element collapsed under extreme particulate loading.
+4. Why was the filter loaded? Scheduled filter cartridge replacement was overdue by 340 operating hours.
+5. Root Cause: Synthetic coolant degraded into heavy varnish deposits, blinding separator media pores.
+
+4. MANDATORY REMEDIATION & CORRECTIVE ACTIONS
+Action 1: Immediately replace coalescing oil separator cartridge with genuine OEM element (Part No. SEP-4402-X).
+Action 2: Completely drain degraded lubricant and flush cooler core with flushing oil FL-100.
+Action 3: Refill with exactly 28 liters of Klüber Summit SH 46 synthetic ester screw compressor oil.
+Action 4: Replace thermostatic bypass valve cartridge (Element VT-82C, opens fully at 82°C).
+Action 5: Calibrate discharge temperature RTD probe (PT-100).
+Action 6: Update digital maintenance schedule: decrease separator inspection interval from 2000 hours to 1500 hours during summer ambient conditions.

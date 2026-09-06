@@ -47,32 +47,44 @@ class LocalOCREngine:
             # If plain text extraction yielded empty pages (e.g. pure scanned image PDF)
             total_chars = sum(len(p["text"].strip()) for p in extracted_pages)
             if total_chars < 50:
-                # Local OCR fallback simulation/heuristics for scanned images
-                extracted_pages = [
-                    {
-                        "page_number": 1,
-                        "text": f"[OCR EXTRACTED FROM SCANNED DOCUMENT]: Technical Inspection Sheet - Vibration and Thermal Analysis Report. Reference SOP-MNT-042. Machine Spindle Bearing B-201 inspected. High wear observed on inner raceway."
-                    }
-                ]
+                # Attempt local page image rendering and OCR
+                ocr_rendered_pages = []
+                try:
+                    import pypdfium2
+                    import pytesseract
+                    pdf = pypdfium2.PdfDocument(file_path)
+                    for i, page in enumerate(pdf):
+                        pil_img = page.render(scale=2.0).to_pil()
+                        ocr_txt = pytesseract.image_to_string(pil_img).strip()
+                        if ocr_txt:
+                            ocr_rendered_pages.append({"page_number": i + 1, "text": ocr_txt})
+                except Exception as e:
+                    print(f"[LocalOCREngine] PDF OCR rendering note: {e}")
+
+                if ocr_rendered_pages:
+                    extracted_pages = ocr_rendered_pages
+                else:
+                    extracted_pages = [
+                        {
+                            "page_number": 1,
+                            "text": f"[DOCUMENT NOTE - {os.path.basename(file_path)}]: Scanned PDF contains no digital text layer. System Tesseract OCR engine was unable to extract optical text."
+                        }
+                    ]
 
         elif file_type.upper() in ["IMAGE", "PNG", "JPG", "JPEG"]:
             extracted_text = ""
+            base_name = os.path.basename(file_path)
             try:
                 import pytesseract
                 from PIL import Image
                 img = Image.open(file_path)
                 extracted_text = pytesseract.image_to_string(img).strip()
-            except Exception:
+            except Exception as e:
+                print(f"[LocalOCREngine] Image OCR note: {e}")
                 extracted_text = ""
 
-            if not extracted_text or len(extracted_text) < 5:
-                base_name = os.path.basename(file_path)
-                extracted_text = (
-                    f"[OCR EXTRACTED FROM SCANNED/HANDWRITTEN NOTE - {base_name}]\n"
-                    f"Asset Inspection & Maintenance Field Notes: Visual inspection completed. "
-                    f"Bearing housing temperature measured at elevated levels. High radial vibration detected. "
-                    f"Recommended immediate execution of SOP-MNT-042 (Spindle Bearing Relubrication) before restarting operation."
-                )
+            if not extracted_text:
+                extracted_text = f"[IMAGE NOTE - {base_name}]: Visual inspection artifact uploaded. No legible optical text recognized by local OCR."
 
             extracted_pages.append({"page_number": 1, "text": extracted_text})
 

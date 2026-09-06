@@ -18,6 +18,8 @@ import type {
   KnowledgeGraphResponse,
   MachineResponse,
   ModelRegistryItem,
+  ModelRoutingDecision,
+  ModelRoutingTableResponse,
   NetworkEgressResponse,
   PermissionEntry,
   RoleMatrixEntry,
@@ -32,7 +34,13 @@ import type {
   UserUpdate,
   WhatIfScenarioRequest,
   WhatIfScenarioResponse,
+  CapabilityListResponse,
+  OrchestratorPlanResponse,
+  OrchestratorExecuteResponse,
+  OrchestratorExecuteRequest,
+  ActiveModelStatusResponse,
 } from '@/types/api'
+
 
 /** Convenience wrapper: only run a query when the role actually allows it. */
 export function usePermission(permission: string) {
@@ -246,6 +254,39 @@ export function useCompatibilityReport(enabled = true) {
   })
 }
 
+export function useModelRoutingTable(enabled = true) {
+  return useQuery({
+    queryKey: ['model-routing-table'],
+    queryFn: () => api.get<ModelRoutingTableResponse>('/api/hardware/routing'),
+    enabled,
+    refetchInterval: 10_000,
+  })
+}
+
+export function useSimulateModelRouting() {
+  return useMutation({
+    mutationFn: (body: {
+      task: string
+      available_ram_gb?: number
+      available_vram_gb?: number
+      has_gpu?: boolean
+      cpu_cores?: number
+    }) => api.post<ModelRoutingDecision>('/api/hardware/routing/simulate', body),
+  })
+}
+
+export function useRefreshModels() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () => api.post<{ status: string; models_count: number; models: ModelRegistryItem[] }>('/api/hardware/models/refresh', {}),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['hardware-models'] })
+      void qc.invalidateQueries({ queryKey: ['model-routing-table'] })
+      void qc.invalidateQueries({ queryKey: ['hardware-compatibility'] })
+    },
+  })
+}
+
 // -------------------------------------------------- users / roles / audit
 
 export function useUsers(enabled = true) {
@@ -344,3 +385,36 @@ export function useNetworkEgress(enabled = true) {
     refetchInterval: 5_000,
   })
 }
+
+// ------------------------------------------------------- sovereign orchestrator
+
+export function useCapabilities(enabled = true) {
+  return useQuery({
+    queryKey: ['orchestrator-capabilities'],
+    queryFn: () => api.get<CapabilityListResponse>('/api/orchestrator/capabilities'),
+    enabled,
+  })
+}
+
+export function useOrchestratorPlan() {
+  return useMutation({
+    mutationFn: (data: OrchestratorExecuteRequest) =>
+      api.post<OrchestratorPlanResponse>('/api/orchestrator/plan', data),
+  })
+}
+
+export function useOrchestratorExecute() {
+  return useMutation({
+    mutationFn: (data: OrchestratorExecuteRequest) =>
+      api.post<OrchestratorExecuteResponse>('/api/orchestrator/execute', data),
+  })
+}
+
+export function useActiveModelStatus() {
+  return useQuery({
+    queryKey: ['hardware', 'active-model'],
+    queryFn: () => api.get<ActiveModelStatusResponse>('/api/hardware/active-model'),
+    refetchInterval: 5000,
+  })
+}
+

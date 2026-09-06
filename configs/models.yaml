@@ -1,0 +1,65 @@
+# Sovereign AI Workbench - Local Model Configuration
+# 100% On-Premise / Air-Gapped Model Provisioning
+# All models execute locally on industrial server (VRAM-aware scheduling, ~8GB GPU or CPU fallback)
+
+version: "1.0"
+deployment_mode: "air_gapped"
+
+models:
+  reasoning:
+    provider: "local_gguf"
+    runtime: "llama_cpp"
+    model_name: "Qwen 2.5 0.5B Instruct"
+    path: "./models/qwen2.5-0.5b-instruct-q4_k_m.gguf"
+    task_type: "AGENT_PLANNER"
+    gpu_offload: true
+    max_vram_gb: 4.0
+    cpu_threads: 4
+    context_length: 4096
+
+  reasoning_secondary:
+    provider: "local_gguf"
+    runtime: "llama_cpp"
+    model_name: "SmolLM2 1.7B Instruct"
+    path: "./models/smollm2-1.7b-instruct-q4_k_m.gguf"
+    task_type: "REASONING"
+    gpu_offload: true
+    max_vram_gb: 4.0
+    cpu_threads: 4
+    context_length: 4096
+
+  vision:
+    provider: "local"
+    runtime: "cpu"
+    model_name: "Local Industrial Vision Engine"
+    task_type: "VISION"
+    gpu_offload: false
+    max_vram_gb: 1.5
+
+  embeddings:
+    provider: "local"
+    runtime: "sentence_transformers"
+    model_name: "all-MiniLM-L6-v2"
+    path: "./models/embeddings/all-MiniLM-L6-v2"
+    dimensions: 384
+    gpu_offload: false
+
+  reranker:
+    provider: "local"
+    runtime: "cpu"
+    model_name: "Local BM25 / Sparse Reranker"
+    gpu_offload: false
+
+  ocr:
+    provider: "local"
+    runtime: "cpu"
+    model_name: "Local Offline Document OCR"
+    supported_formats: ["pdf", "png", "jpg", "jpeg", "tiff"]
+    gpu_offload: false
+
+  security:
+    provider: "local"
+    runtime: "cpu"
+    model_name: "Sovereign Prompt Guard Security Shield"
+    capabilities: ["injection_defense", "data_exfiltration_block", "untrusted_data_sanitization"]
+    gpu_offload: false

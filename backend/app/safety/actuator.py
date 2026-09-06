@@ -26,7 +26,8 @@ class SimulatedActuatorLayer:
         command: str,  # EMERGENCY_SHUTDOWN, THROTTLE_SPEED, ISOLATE_VALVE, RESET_SYSTEM
         issued_by: str,
         approval_id: Optional[str] = None,
-        issued_by_role: Optional[str] = None
+        issued_by_role: Optional[str] = None,
+        justification: Optional[str] = None
     ) -> Dict[str, Any]:
         asset = AssetRegistry.get_by_id(machine_id)
         if not asset:
@@ -84,7 +85,11 @@ class SimulatedActuatorLayer:
             resource=f"{actuator_id}:{machine_id}",
             result="SUCCESS",
             reason=result_msg,
-            details={"previous_status": previous_status, "approval_id": approval_id}
+            details={
+                "previous_status": previous_status,
+                "approval_id": approval_id,
+                "justification": justification
+            }
         )
 
         return {

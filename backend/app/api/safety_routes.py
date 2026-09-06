@@ -43,6 +43,52 @@ def get_safety_rules(payload: dict = Depends(require_permission("safety:read")))
 def get_safety_events(limit: int = 30, payload: dict = Depends(require_permission("safety:read"))):
     return DeterministicSafetyEngine.get_events(limit=limit)
 
+TRIVIAL_JUSTIFICATIONS = {
+    "hello", "hi", "hey", "test", "testing", "asdf", "qwerty", "stop", "shutdown",
+    "please", "urgent", "emergency", "none", "na", "n/a", "temp", "check", "abc",
+    "xyz", "ok", "okay", "yes", "no", "pls", "plz", "help", "idk", "why", "just", "done"
+}
+
+SAFETY_CONTEXT_KEYWORDS = {
+    "vibration", "thermal", "temperature", "temp", "heat", "smoke", "fire", "leak", "rupture",
+    "bearing", "spindle", "motor", "pump", "compressor", "hydraulic", "pressure", "current",
+    "loto", "lockout", "tagout", "hazard", "safety", "failure", "seizure", "unbalance",
+    "cavitation", "gas", "emission", "overheating", "anomaly", "trip", "alarm", "excursion",
+    "spark", "acoustic", "noise", "jam", "inspection", "maintenance", "sop", "wear", "critical",
+    "break", "danger", "damaged", "crack", "burn", "torch", "amperage", "disconnect", "controlled"
+}
+
+def validate_shutdown_justification(justification: str) -> str:
+    cleaned = (justification or "").strip()
+    if not cleaned:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Emergency shutdown justification cannot be empty."
+        )
+
+    if len(cleaned) < 15:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Emergency shutdown justification is too short ({len(cleaned)} chars). Minimum 15 characters required."
+        )
+
+    tokens = [t.strip(".,!?;:\"'()[]{}") for t in cleaned.lower().split() if t.strip(".,!?;:\"'()[]{}")]
+    if not tokens or all(t in TRIVIAL_JUSTIFICATIONS for t in tokens):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid justification '{cleaned}'. Trivial greetings, single test words, or casual phrases cannot trigger emergency shutdown. A technical safety hazard or operational justification is required."
+        )
+
+    has_safety_keyword = any(kw in cleaned.lower() for kw in SAFETY_CONTEXT_KEYWORDS)
+
+    if not has_safety_keyword:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Justification lacks required industrial safety rationale. Please describe the physical hazard, telemetry excursion (e.g. vibration spike, thermal runaway, smoke, leak), or maintenance protocol."
+        )
+
+    return cleaned
+
 @router.post("/emergency-shutdown")
 def trigger_emergency_shutdown(
     req: EmergencyShutdownRequest,
@@ -50,6 +96,9 @@ def trigger_emergency_shutdown(
 ):
     user = payload["sub"]
     role = payload.get("role", "OPERATOR")
+
+    # Validate non-trivial, safety-grounded justification
+    validated_justification = validate_shutdown_justification(req.justification)
 
     # If user is Safety Officer or Admin, they have authority to trip immediately
     if role in ["SAFETY_OFFICER", "ADMINISTRATOR"]:
@@ -59,7 +108,8 @@ def trigger_emergency_shutdown(
                 machine_id=req.machine_id,
                 command="EMERGENCY_SHUTDOWN",
                 issued_by=f"{user} ({role})",
-                issued_by_role=role
+                issued_by_role=role,
+                justification=validated_justification
             )
         except PermissionError as e:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
@@ -76,7 +126,7 @@ def trigger_emergency_shutdown(
             action_type="EMERGENCY_SHUTDOWN",
             target_resource=req.machine_id,
             requested_by=user,
-            justification=req.justification,
+            justification=validated_justification,
             required_role="SAFETY_OFFICER"
         )
         return {

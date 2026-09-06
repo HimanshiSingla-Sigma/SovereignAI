@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AlertOctagon, Loader2, ShieldAlert, ShieldCheck } from 'lucide-react'
+import { AlertOctagon, AlertTriangle, Loader2, ShieldAlert, ShieldCheck } from 'lucide-react'
 import { useEmergencyShutdown, useMachines, useRootCause, useSafetyEvents, useSafetyRules, useSafetyStatus } from '@/hooks/useApi'
 import { useSelectionStore } from '@/store/selectionStore'
 import { useAuthStore } from '@/store/authStore'
@@ -9,6 +9,33 @@ import { dateTime, num, severityOf } from '@/lib/format'
 import { pickDefaultMachine } from '@/lib/pickMachine'
 import { Badge, EmptyState, ErrorState, Loading, PageHeader, Panel, Stat, StatusDot } from '@/components/ui'
 import MachineChips from '@/components/MachineChips'
+
+const PRESET_JUSTIFICATIONS = [
+  'Excessive radial vibration (> 4.5 mm/s) detected on main drive bearing.',
+  'Thermal runaway hazard (> 90 °C) observed with rapid temperature escalation.',
+  'Mandatory LOTO electrical and mechanical maintenance isolation.',
+  'Severe hydraulic pressure oscillation and acoustic cavitation detected.',
+]
+
+const validateJustification = (text: string): { valid: boolean; reason?: string } => {
+  const trimmed = text.trim()
+  if (!trimmed) {
+    return { valid: false, reason: 'Justification is required.' }
+  }
+  if (trimmed.length < 15) {
+    return { valid: false, reason: `Minimum 15 characters required (${trimmed.length}/15).` }
+  }
+  const trivialWords = new Set([
+    'hello', 'hi', 'hey', 'test', 'testing', 'asdf', 'qwerty', 'stop', 'shutdown',
+    'please', 'urgent', 'emergency', 'none', 'na', 'n/a', 'temp', 'check', 'abc',
+    'xyz', 'ok', 'okay', 'yes', 'no', 'pls', 'plz', 'help', 'why', 'idk', 'just', 'done'
+  ])
+  const words = trimmed.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean)
+  if (words.length > 0 && words.every((w) => trivialWords.has(w))) {
+    return { valid: false, reason: 'Trivial greetings or test words are not valid safety justifications.' }
+  }
+  return { valid: true }
+}
 
 export default function SafetyPage() {
   const status = useSafetyStatus()
@@ -41,9 +68,10 @@ export default function SafetyPage() {
       `AI root cause (confidence ${(rootCause.data.confidence * 100).toFixed(0)}%): ${rootCause.data.probable_root_cause} Mitigation: ${rootCause.data.recommended_mitigation}`,
     )
   }
+  const justificationStatus = validateJustification(justification)
 
   const trigger = async () => {
-    if (!machineId || !justification.trim()) return
+    if (!machineId || !justificationStatus.valid) return
     setError(null)
     setOutcome(null)
     play('toggle')
@@ -122,15 +150,43 @@ export default function SafetyPage() {
                   className="field mt-1.5 min-h-[96px] resize-y py-2.5"
                   value={justification}
                   onChange={(e) => setJustification(e.target.value)}
-                  placeholder="Why is this shutdown necessary?"
+                  placeholder="Why is this shutdown necessary? (e.g. Excessive vibration spike, thermal runaway, smoke, LOTO maintenance)"
                 />
+
+                {/* Quick rationale preset chips */}
+                <div className="mt-2">
+                  <div className="label-xs mb-1 text-muted">Quick Rationale Presets:</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {PRESET_JUSTIFICATIONS.map((preset, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        className="rounded-ctl border border-hairline bg-surface-2 px-2 py-1 text-[11px] text-muted hover:border-accent hover:text-accent transition-colors"
+                        onClick={() => {
+                          play('click')
+                          setJustification(preset)
+                        }}
+                      >
+                        {preset.split('(')[0].trim().slice(0, 30)}…
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Inline validation status */}
+                {justification.trim() && !justificationStatus.valid && (
+                  <p className="mt-2 flex items-center gap-1.5 rounded-ctl border border-warn/30 bg-warn/10 px-2.5 py-1.5 text-xs text-warn">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{justificationStatus.reason}</span>
+                  </p>
+                )}
               </div>
 
               <button
                 type="button"
                 className="btn btn-danger w-full"
                 onClick={() => void trigger()}
-                disabled={shutdown.isPending || !machineId || !justification.trim()}
+                disabled={shutdown.isPending || !machineId || !justificationStatus.valid}
               >
                 {shutdown.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <AlertOctagon className="h-4 w-4" />}
                 Trigger emergency shutdown

@@ -167,7 +167,7 @@ class EmergencyShutdownRequest(BaseModel):
 class ApprovalRequestResponse(BaseModel):
     request_id: str
     action_type: str
-    target_resource: str
+    target_resource: Optional[str] = "SYSTEM"
     requested_by: str
     required_role: str
     justification: str
@@ -263,9 +263,12 @@ class GraphRootCauseResponse(BaseModel):
 
 class AIChatRequest(BaseModel):
     message: str
+    conversation_id: Optional[str] = None
     machine_id: Optional[str] = None
     use_rag: bool = True
     use_graphrag: bool = True
+    file_path: Optional[str] = None
+    file_type: Optional[str] = None
 
 class AgentStepResponse(BaseModel):
     step_number: int
@@ -278,10 +281,45 @@ class AgentStepResponse(BaseModel):
 class AIChatResponse(BaseModel):
     response: str
     model_used: str
+    conversation_id: Optional[str] = None
     citations: List[DocumentCitation] = []
     knowledge_facts: List[str] = []
     agent_steps: List[AgentStepResponse] = []
     safety_check: str = "PASSED"
+
+# ================= CONVERSATION & MEMORY SCHEMAS =================
+
+class CreateConversationRequest(BaseModel):
+    title: Optional[str] = "New Conversation"
+    machine_context: Optional[str] = None
+
+class ConversationMessageItem(BaseModel):
+    message_id: str
+    role: str
+    content: str
+    model_used: Optional[str] = None
+    agent_trace: Optional[List[Dict[str, Any]]] = None
+    citations: Optional[List[Dict[str, Any]]] = None
+    facts: Optional[List[str]] = None
+    created_at: datetime
+
+class ConversationSummaryResponse(BaseModel):
+    conversation_id: str
+    title: str
+    machine_context: Optional[str] = None
+    summary: Optional[str] = None
+    message_count: int = 0
+    created_at: datetime
+    updated_at: datetime
+
+class ConversationDetailResponse(BaseModel):
+    conversation_id: str
+    title: str
+    machine_context: Optional[str] = None
+    summary: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    messages: List[ConversationMessageItem] = []
 
 # ================= HARDWARE & GOVERNANCE SCHEMAS =================
 
@@ -309,8 +347,35 @@ class ModelRegistryItem(BaseModel):
     ram_required_gb: float
     vram_required_gb: float
     is_compatible: bool
+    is_installed: bool = False
+    is_fallback: bool = False
+    file_size_gb: float = 0.0
     recommended_tier: str
     description: str
+
+class ModelRoutingDecisionResponse(BaseModel):
+    selected_model_id: str
+    selected_model_name: str
+    task: str
+    execution_mode: str
+    target_hardware: str
+    is_fallback: bool
+    score: float
+    reasons: List[str]
+    hardware_snapshot: Dict[str, Any]
+    resource_budget: Dict[str, Any]
+    candidates_evaluated: List[Dict[str, Any]]
+
+class ModelRoutingTableResponse(BaseModel):
+    hardware_summary: Dict[str, Any]
+    routing_table: Dict[str, ModelRoutingDecisionResponse]
+
+class ModelRoutingSimulateRequest(BaseModel):
+    task_type: str = "GENERAL_LLM"
+    prompt: Optional[str] = None
+    override_available_ram_gb: Optional[float] = None
+    override_vram_gb: Optional[float] = None
+    override_has_gpu: Optional[bool] = None
 
 class AuditLogResponse(BaseModel):
     timestamp: str
@@ -329,3 +394,86 @@ class SecurityEventResponse(BaseModel):
     risk_level: str
     description: str
     action_taken: str
+
+# ================= SOVEREIGN ORCHESTRATOR SCHEMAS =================
+
+class OrchestratorPlanStep(BaseModel):
+    step_number: int
+    action: str
+    capability: str
+    handler_type: str  # TOOL or MODEL
+    tool_or_model: Optional[str] = None
+    args: Dict[str, Any] = {}
+    requires_approval: bool = False
+    action_type: Optional[str] = None
+
+class OrchestratorPlanResponse(BaseModel):
+    plan_id: str
+    prompt: str
+    detected_intent: str
+    confidence: float
+    is_compound: bool
+    workflow_sequence: List[str]
+    planning_level: str
+    steps: List[OrchestratorPlanStep]
+    total_steps: int
+
+class OrchestratorExecuteRequest(BaseModel):
+    prompt: str
+    machine_id: Optional[str] = None
+    file_path: Optional[str] = None
+    file_type: Optional[str] = None
+    auto_approve_controlled: bool = False
+
+class OrchestratorTraceStep(BaseModel):
+    step_number: int
+    action: str
+    capability: str
+    handler_type: str
+    target: Optional[str] = None
+    status: str
+    input_data: Optional[Dict[str, Any]] = None
+    output_summary: str
+    execution_time_ms: float
+    approval_id: Optional[str] = None
+
+class OrchestratorExecuteResponse(BaseModel):
+    request_id: str
+    prompt: str
+    status: str
+    detected_intent: str
+    planning_level: str
+    confidence: float
+    steps_executed: int
+    total_time_ms: float
+    model_used: Optional[str] = None
+    is_fallback: Optional[bool] = False
+    execution_trace: List[OrchestratorTraceStep]
+    final_answer: str
+    pending_approval: Optional[Dict[str, Any]] = None
+    citations: List[Dict[str, Any]] = []
+    knowledge_facts: List[str] = []
+    safety_check: str = "PASSED"
+
+class ActiveModelStatusResponse(BaseModel):
+    active_model_name: str
+    active_model_path: Optional[str] = None
+    active_task: Optional[str] = None
+    is_loaded_in_memory: bool
+    is_fallback: bool
+    llama_cpp_installed: bool
+    llama_cpp_version: Optional[str] = None
+    llama_cpp_status: str
+
+class CapabilityItem(BaseModel):
+    id: str
+    name: str
+    type: str
+    description: str
+    is_controlled: bool
+    examples: List[str]
+
+class CapabilityListResponse(BaseModel):
+    total: int
+    capabilities: List[CapabilityItem]
+

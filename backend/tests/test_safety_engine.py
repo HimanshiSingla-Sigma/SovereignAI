@@ -51,3 +51,39 @@ def test_human_in_the_loop_approval_workflow(client: TestClient, operator_header
     assert mach_res.status_code == 200
     assert mach_res.json()["status"] == "SHUTDOWN"
     assert mach_res.json()["rpm"] == 0.0
+
+def test_reject_trivial_emergency_shutdown_justification(client: TestClient, admin_headers, operator_headers):
+    # Test trivial greeting "hello"
+    res1 = client.post(
+        "/api/safety/emergency-shutdown",
+        headers=admin_headers,
+        json={
+            "machine_id": "Machine-001",
+            "justification": "hello"
+        }
+    )
+    assert res1.status_code == 400
+    assert "Minimum 15 characters" in res1.json()["detail"] or "Invalid justification" in res1.json()["detail"]
+
+    # Test trivial word phrase with enough length
+    res2 = client.post(
+        "/api/safety/emergency-shutdown",
+        headers=admin_headers,
+        json={
+            "machine_id": "Machine-001",
+            "justification": "hello hi hey test stop please"
+        }
+    )
+    assert res2.status_code == 400
+
+    # Test random non-safety phrase
+    res3 = client.post(
+        "/api/safety/emergency-shutdown",
+        headers=operator_headers,
+        json={
+            "machine_id": "Machine-001",
+            "justification": "the quick brown fox jumped over"
+        }
+    )
+    assert res3.status_code == 400
+    assert "lacks required industrial safety" in res3.json()["detail"]

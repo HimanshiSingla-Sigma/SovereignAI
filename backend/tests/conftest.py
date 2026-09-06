@@ -5,9 +5,11 @@ from app.core.database import SessionLocal
 from app.core.security import create_access_token
 from app.core.rbac import ROLE_ADMINISTRATOR, ROLE_ENGINEER, ROLE_SAFETY_OFFICER, ROLE_OPERATOR, ROLE_PERMISSIONS_MATRIX
 from app.digital_twin.assets import AssetRegistry
+from app.seed_data import seed_database
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_suite():
+    seed_database()
     AssetRegistry.initialize()
 
 @pytest.fixture

@@ -1,0 +1,17 @@
+SOVEREIGN INDUSTRIAL INCIDENT INVESTIGATION REPORT
+INCIDENT CODE: INC-2025-08-04 | CLASSIFICATION: CONFIDENTIAL
+ASSET: Machine-002 (Heavy Duty Turning Center) | INVESTIGATOR: Senior Reliability Engineer
+
+EXECUTIVE SUMMARY
+On August 4, 2025, Machine-002 experienced an unexpected automatic emergency trip when radial vibration spiked to 4.6 mm/s, breaching the critical safety rule SR-VIB-02 (4.5 mm/s threshold). 
+
+ROOT CAUSE ANALYSIS
+Detailed metallurgical examination of Spindle Bearing B-201 revealed:
+1. Significant grease breakdown caused by continuous operation at elevated ambient temperature without intermediate relubrication.
+2. Micro-spalling along the inner raceway, causing high harmonic excitation.
+3. Drive motor current remained steady at 28-30A, proving the issue was purely mechanical friction, not an electrical drive fault.
+
+CORRECTIVE ACTIONS
+1. Updated preventive maintenance intervals from 6 months to 60 operating days.
+2. Required continuous cross-sensor correlation monitoring between temperature and vibration.
+3. Verified compliance with SOP-MNT-042.

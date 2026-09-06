@@ -1,0 +1,13 @@
+SAFETY OPERATING PROCEDURE: SOP-SAF-001
+TITLE: Industrial Plant Emergency Shutdown (ESD) and Actuator Interlocks
+AUTHORITY: Chief Safety Officer | JURISDICTION: All Active Autonomous Workcells
+
+1. DETERMINISTIC SAFETY ENGINE GOVERNANCE
+Under Sovereign Industrial Architecture, artificial intelligence agents are advisory only. Under no circumstances may an AI model or autonomous script trigger physical actuator commands directly.
+
+2. SHUTDOWN CRITERIA
+- Temperature >= 95.0°C or Vibration >= 4.5 mm/s mandates immediate trip or Safety Officer intervention.
+- Combustible Gas >= 50.0 ppm mandates immediate automatic hardware interlock trip.
+
+3. HUMAN-IN-THE-LOOP (HITL) REQUIREMENT
+Any manual or AI-recommended emergency shutdown or speed throttle requires cryptographic approval from a verified Safety Officer or Administrator, logged immutably in the system audit trail.

@@ -1,0 +1,33 @@
+STANDARD OPERATING PROCEDURE: SOP-HYD-701
+TITLE: High-Tonnage Hydraulic Press Cylinder Seal & Valve Replacement Protocol
+DOCUMENT ID: SOP-HYD-701
+REVISION: 2.1 | DATE: 2026-01-15
+CLASSIFICATION: INTERNAL
+APPLICABILITY: Hydraulic Press (Machine-TEST-001), Stamping Cell B, Coolant Pump (Pump-001)
+
+1. PURPOSE & SAFETY WARNING
+This standard operating procedure specifies mandatory safety and maintenance protocols for replacing high-pressure polyurethane piston seals and proportional relief valves on hydraulic stamping presses.
+WARNING: Working with stored hydraulic pressure can cause severe injection injuries. Always perform zero-pressure verification before cracking any hydraulic line or cylinder flange.
+
+2. SPECIFICATIONS & REQUIRED MATERIALS
+- Hydraulic Fluid Specification: Shell Tellus S2 V 46 (ISO VG 46 anti-wear hydraulic oil).
+- Primary Piston Seal Kit: Parker PolyPak D-Ring High-Pressure Seal (Part No. PK-9920-HYD).
+- Tie-Rod Torque Specification: 185 Nm (+/- 5 Nm) applied in star pattern.
+- Proportional Relief Valve Setpoint: 220 bar nominal, 250 bar absolute relief limit.
+
+3. SYMPTOMS OF SEAL FAILURE & VALVE DEGRADATION
+- External rod wiper fluid leakage exceeding 5 drops per minute.
+- Hydraulic main ram pressure decay exceeding 25 bar over 30 seconds during dwell stroke.
+- Oil reservoir bulk temperature climbing past 68°C due to internal relief valve bypass recirculation.
+
+4. STEP-BY-STEP REPLACEMENT WORKFLOW
+Step 1: Park ram at bottom dead center (BDC) on physical mechanical safety lock blocks.
+Step 2: Isolate primary 415V electrical main breaker and apply Lockout/Tagout (LOTO).
+Step 3: Manually open manual bleed valve HV-01 to vent pressurized accumulator down to 0.0 bar. Verify manometer reads zero.
+Step 4: Disconnect pilot hoses and remove the four M16 flange bolts securing the proportional relief valve.
+Step 5: Extract degraded piston gland seals using brass pick tools. Do not scratch cylinder bore surface.
+Step 6: Lubricate new Parker PolyPak seals in clean ISO VG 46 oil before seating into groove.
+Step 7: Re-torque cylinder head tie rods to 185 Nm in calibrated criss-cross stages.
+Step 8: Reinstall proportional relief valve with new Viton O-rings (Part No. VT-75-012).
+Step 9: Purge trapped air: Jog main ram up and down for 5 cycles at low speed (50 mm/s) under zero tonnage.
+Step 10: Perform full pressure test at 210 bar for 10 minutes. Check for zero pressure drop.

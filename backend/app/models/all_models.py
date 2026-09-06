@@ -58,6 +58,7 @@ class User(Base):
     roles = relationship("Role", secondary="user_roles", back_populates="users")
     mfa_credential = relationship("MFACredential", back_populates="user", uselist=False, cascade="all, delete-orphan")
     sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
+    conversations = relationship("Conversation", back_populates="user", cascade="all, delete-orphan")
 
 class MFACredential(Base):
     __tablename__ = "mfa_credentials"
@@ -110,7 +111,22 @@ class Machine(Base):
     rpm = Column(Float, default=1500.0)
     operating_hours = Column(Float, default=240.0)
     last_telemetry_at = Column(DateTime, default=utcnow)
+    location = Column(String(100), default="Factory Floor", nullable=True)
+    production_line = Column(String(100), default="Line-1", nullable=True)
+    machine_type = Column(String(50), default="CNC_MILL", nullable=True)
+    manufacturer = Column(String(100), nullable=True)
+    model_number = Column(String(100), nullable=True)
+    serial_number = Column(String(100), nullable=True)
+    protocol = Column(String(50), default="MQTT", nullable=True)
+    ip_address = Column(String(100), nullable=True)
+    capabilities = Column(JSON, default=list, nullable=True)
+    safety_profile = Column(JSON, default=dict, nullable=True)
+    telemetry_topic = Column(String(100), nullable=True)
+    data_source = Column(String(30), default="SIMULATOR", nullable=True)
+    graph_sync_status = Column(String(30), default="SYNCED", nullable=True)
+    graph_synced_at = Column(DateTime, default=utcnow, nullable=True)
     created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow, nullable=True)
 
     components = relationship("Component", back_populates="machine", cascade="all, delete-orphan")
     sensors = relationship("Sensor", back_populates="machine", cascade="all, delete-orphan")
@@ -352,3 +368,36 @@ class SecurityEvent(Base):
     description = Column(Text, nullable=False)
     payload_sample = Column(Text, nullable=True)
     action_taken = Column(String(30), default="BLOCKED")  # BLOCKED, FLAGGED, MONITORED
+
+
+# ================= CONVERSATION & PERSISTENT CHAT MODELS =================
+
+class Conversation(Base):
+    __tablename__ = "conversations"
+    id = Column(Integer, primary_key=True, index=True)
+    conversation_id = Column(String(64), unique=True, index=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    title = Column(String(255), default="New Conversation")
+    summary = Column(Text, nullable=True)
+    machine_context = Column(String(50), nullable=True)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
+
+    user = relationship("User", back_populates="conversations")
+    messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan", order_by="Message.created_at")
+
+
+class Message(Base):
+    __tablename__ = "messages"
+    id = Column(Integer, primary_key=True, index=True)
+    message_id = Column(String(64), unique=True, index=True, nullable=False)
+    conversation_id = Column(Integer, ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False, index=True)
+    role = Column(String(30), nullable=False)  # user, assistant, system
+    content = Column(Text, nullable=False)
+    model_used = Column(String(100), nullable=True)
+    agent_trace = Column(JSON, nullable=True)
+    citations = Column(JSON, nullable=True)
+    facts = Column(JSON, nullable=True)
+    created_at = Column(DateTime, default=utcnow)
+
+    conversation = relationship("Conversation", back_populates="messages")

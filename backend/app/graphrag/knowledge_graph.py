@@ -47,25 +47,187 @@ INITIAL_GRAPH_EDGES = [
     {"source": "INC-2025-08-04", "target": "SOP-MNT-042", "type": "RESOLVED_BY"}
 ]
 
+import os
+import json
+
+GRAPH_STORE_FILE = "./data/knowledge_graph.json"
+
 class SovereignKnowledgeGraph:
-    """In-memory industrial Knowledge Graph for entity-relationship traversal and root cause discovery."""
-    _nodes = list(INITIAL_GRAPH_NODES)
-    _edges = list(INITIAL_GRAPH_EDGES)
+    """
+    Sovereign Industrial Knowledge Graph (GraphRAG) engine.
+    Supports idempotent MERGE semantics, Neo4j connectivity when configured,
+    and dynamic graph traversal for root-cause analysis and machine topology discovery.
+    Includes persistent on-disk graph synchronization.
+    """
+    _neo4j_driver = None
+    _neo4j_checked = False
+    _nodes: List[Dict[str, Any]] = [dict(n) for n in INITIAL_GRAPH_NODES]
+    _edges: List[Dict[str, Any]] = [dict(e) for e in INITIAL_GRAPH_EDGES]
+    _loaded_from_disk = False
+
+    @classmethod
+    def _get_neo4j_driver(cls):
+        if not cls._neo4j_checked:
+            cls._neo4j_checked = True
+            try:
+                from neo4j import GraphDatabase
+                uri = os.environ.get("NEO4J_URI", "bolt://localhost:7687")
+                user = os.environ.get("NEO4J_USER", "neo4j")
+                password = os.environ.get("NEO4J_PASSWORD", "sovereign2026")
+                driver = GraphDatabase.driver(uri, auth=(user, password))
+                driver.verify_connectivity()
+                cls._neo4j_driver = driver
+                print(f"[KnowledgeGraph] Connected to Neo4j at {uri}")
+            except Exception as e:
+                print(f"[KnowledgeGraph] Note: Neo4j running in local persistent graph mode ({e})")
+                cls._neo4j_driver = None
+        return cls._neo4j_driver
+
+    @classmethod
+    def _ensure_loaded(cls):
+        if not cls._loaded_from_disk:
+            cls._loaded_from_disk = True
+            if os.path.exists(GRAPH_STORE_FILE):
+                try:
+                    with open(GRAPH_STORE_FILE, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        cls._nodes = data.get("nodes", cls._nodes)
+                        cls._edges = data.get("edges", cls._edges)
+                except Exception:
+                    pass
+
+    @classmethod
+    def _save_to_disk(cls):
+        try:
+            os.makedirs(os.path.dirname(GRAPH_STORE_FILE), exist_ok=True)
+            with open(GRAPH_STORE_FILE, "w", encoding="utf-8") as f:
+                json.dump({"nodes": cls._nodes, "edges": cls._edges}, f)
+        except Exception as e:
+            print(f"[KnowledgeGraph] Persistence note: {e}")
 
     @classmethod
     def get_graph(cls) -> Dict[str, Any]:
+        cls._ensure_loaded()
         return {
-            "nodes": cls._nodes,
-            "edges": cls._edges
+            "nodes": list(cls._nodes),
+            "edges": list(cls._edges)
         }
 
     @classmethod
-    def add_node(cls, node_id: str, name: str, node_type: str, properties: Dict[str, Any] = None):
-        cls._nodes.append({"id": node_id, "name": name, "type": node_type, "properties": properties or {}})
+    def merge_node(cls, node_id: str, name: str, node_type: str, properties: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Idempotent MERGE operation for graph nodes.
+        Updates existing node if node_id matches, or creates new node if not present.
+        Synchronizes to Neo4j when available.
+        """
+        cls._ensure_loaded()
+        properties = properties or {}
+
+        # 1. Update in-memory / persistent store
+        target_node = None
+        for existing in cls._nodes:
+            if existing["id"] == node_id:
+                existing["name"] = name
+                existing["type"] = node_type
+                existing.setdefault("properties", {}).update(properties)
+                target_node = existing
+                break
+
+        if not target_node:
+            target_node = {
+                "id": node_id,
+                "name": name,
+                "type": node_type,
+                "properties": properties
+            }
+            cls._nodes.append(target_node)
+
+        cls._save_to_disk()
+
+        # 2. Sync to Neo4j if driver available
+        driver = cls._get_neo4j_driver()
+        if driver:
+            try:
+                with driver.session() as session:
+                    cypher = (
+                        "MERGE (n:Entity {id: $node_id}) "
+                        "SET n.name = $name, n.type = $node_type, n += $properties "
+                        "RETURN n"
+                    )
+                    session.run(cypher, node_id=node_id, name=name, node_type=node_type, properties=properties)
+            except Exception as e:
+                print(f"[KnowledgeGraph] Neo4j sync node note: {e}")
+
+        return target_node
 
     @classmethod
-    def add_edge(cls, source: str, target: str, rel_type: str, properties: Dict[str, Any] = None):
-        cls._edges.append({"source": source, "target": target, "type": rel_type, "properties": properties or {}})
+    def merge_edge(cls, source: str, target: str, rel_type: str, properties: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Idempotent MERGE operation for graph relationships.
+        Updates existing edge if (source, target, type) matches, or creates new edge.
+        Synchronizes to Neo4j when available.
+        """
+        cls._ensure_loaded()
+        properties = properties or {}
+
+        # 1. Update in-memory / persistent store
+        target_edge = None
+        for existing in cls._edges:
+            if existing["source"] == source and existing["target"] == target and existing["type"] == rel_type:
+                existing.setdefault("properties", {}).update(properties)
+                target_edge = existing
+                break
+
+        if not target_edge:
+            target_edge = {
+                "source": source,
+                "target": target,
+                "type": rel_type,
+                "properties": properties
+            }
+            cls._edges.append(target_edge)
+
+        cls._save_to_disk()
+
+        # 2. Sync to Neo4j if driver available
+        driver = cls._get_neo4j_driver()
+        if driver:
+            try:
+                with driver.session() as session:
+                    cypher = (
+                        "MERGE (s:Entity {id: $source}) "
+                        "MERGE (t:Entity {id: $target}) "
+                        "MERGE (s)-[r:RELATION {type: $rel_type}]->(t) "
+                        "SET r += $properties "
+                        "RETURN r"
+                    )
+                    session.run(cypher, source=source, target=target, rel_type=rel_type, properties=properties)
+            except Exception as e:
+                print(f"[KnowledgeGraph] Neo4j sync edge note: {e}")
+
+        return target_edge
+
+    @classmethod
+    def remove_edge(cls, source: str, target: str, rel_type: str):
+        cls._edges = [
+            e for e in cls._edges
+            if not (e["source"] == source and e["target"] == target and e["type"] == rel_type)
+        ]
+
+    @classmethod
+    def add_node(cls, node_id: str, name: str, node_type: str, properties: Optional[Dict[str, Any]] = None):
+        return cls.merge_node(node_id, name, node_type, properties)
+
+    @classmethod
+    def add_edge(cls, source: str, target: str, rel_type: str, properties: Optional[Dict[str, Any]] = None):
+        return cls.merge_edge(source, target, rel_type, properties)
+
+    @classmethod
+    def get_node(cls, node_id: str) -> Optional[Dict[str, Any]]:
+        for n in cls._nodes:
+            if n["id"] == node_id:
+                return n
+        return None
 
     @classmethod
     def find_subgraph_for_entity(cls, entity_id: str, max_depth: int = 2) -> Dict[str, Any]:
@@ -97,24 +259,62 @@ class SovereignKnowledgeGraph:
 
     @classmethod
     def analyze_root_cause(cls, machine_id: str) -> Dict[str, Any]:
-        """Traces multi-hop causal chain from machine down to failure modes and remediation SOPs."""
-        subgraph = cls.find_subgraph_for_entity(machine_id, max_depth=2)
-        
+        """
+        Dynamically traces multi-hop causal chain from machine down to failure modes and remediation SOPs.
+        Uses actual graph structure without hardcoded assumptions.
+        """
+        subgraph = cls.find_subgraph_for_entity(machine_id, max_depth=3)
+        nodes_by_id = {n["id"]: n for n in subgraph["nodes"]}
+
+        # Trace causal chains
         causal_chains = []
-        probable_cause = "Mechanical Bearing Race Fatigue due to lubrication breakdown."
-        confidence = 0.92
-        mitigation = "Perform emergency grease replenishment and radial alignment per SOP-MNT-042."
+        failure_modes = []
+        sops = []
+        components = []
+        sensors = []
 
         for edge in subgraph["edges"]:
-            src_node = next((n["name"] for n in subgraph["nodes"] if n["id"] == edge["source"]), edge["source"])
-            tgt_node = next((n["name"] for n in subgraph["nodes"] if n["id"] == edge["target"]), edge["target"])
-            causal_chains.append(f"{src_node} --[{edge['type']}]--> {tgt_node}")
+            src = nodes_by_id.get(edge["source"], {"name": edge["source"], "type": "Unknown"})
+            tgt = nodes_by_id.get(edge["target"], {"name": edge["target"], "type": "Unknown"})
+            causal_chains.append(f"{src.get('name', edge['source'])} --[{edge['type']}]--> {tgt.get('name', edge['target'])}")
+
+            if tgt.get("type") == "FailureMode":
+                failure_modes.append(tgt["name"])
+            elif tgt.get("type") == "MaintenanceProcedure" or "SOP" in tgt["name"]:
+                sops.append(tgt["name"])
+            elif tgt.get("type") == "Component":
+                components.append(tgt.get("id", edge["target"]))
+                if tgt.get("name") and tgt.get("name") != tgt.get("id"):
+                    components.append(tgt["name"])
+            elif tgt.get("type") == "Sensor":
+                sensors.append(tgt.get("id", edge["target"]))
+                if tgt.get("name") and tgt.get("name") != tgt.get("id"):
+                    sensors.append(tgt["name"])
+
+        failure_modes = list(set(failure_modes))
+        sops = list(set(sops))
+        components = list(set(components))
+        sensors = list(set(sensors))
+
+        if failure_modes:
+            probable_cause = "; ".join(failure_modes)
+            mitigation = f"Execute remediation per: {', '.join(sops)}" if sops else "Perform scheduled maintenance and visual inspection."
+            confidence = 0.92
+            historical_count = len(failure_modes)
+        else:
+            probable_cause = "No historical or active failure modes identified in knowledge graph for this asset."
+            mitigation = f"Asset operating within nominal parameters. Connected components: {', '.join(components) if components else 'None'}. Follow standard operational guidelines."
+            confidence = 0.98
+            historical_count = 0
 
         return {
             "target_entity": machine_id,
             "probable_root_cause": probable_cause,
             "confidence": confidence,
             "causal_chain": causal_chains,
-            "historical_occurrences": 2,
-            "recommended_mitigation": mitigation
+            "historical_occurrences": historical_count,
+            "recommended_mitigation": mitigation,
+            "connected_components": components,
+            "connected_sensors": sensors,
+            "associated_sops": sops
         }

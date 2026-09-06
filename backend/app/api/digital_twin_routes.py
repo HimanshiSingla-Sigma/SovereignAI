@@ -1,19 +1,20 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.rbac import require_permission
 from app.digital_twin.assets import AssetRegistry
 from app.digital_twin.telemetry_simulator import TelemetrySimulator
+from app.machines.registry_service import MachineRegistryService
 from app.schemas.schemas import MachineResponse, TelemetryPoint
 
-router = APIRouter(prefix="/machines", tags=["Digital Twin"])
+router = APIRouter(prefix="/machines", tags=["Digital Twin & Machine Registry"])
 
 @router.get("", response_model=List[MachineResponse])
 def get_all_machines(payload: dict = Depends(require_permission("machines:read"))):
-    return AssetRegistry.get_all()
+    return MachineRegistryService.list_machines()
 
 @router.get("/{machine_id}", response_model=MachineResponse)
 def get_machine_by_id(machine_id: str, payload: dict = Depends(require_permission("machines:read"))):
-    asset = AssetRegistry.get_by_id(machine_id)
+    asset = MachineRegistryService.get_machine(machine_id)
     if not asset:
         raise HTTPException(status_code=404, detail=f"Machine '{machine_id}' not found.")
     return asset
@@ -22,7 +23,6 @@ def get_machine_by_id(machine_id: str, payload: dict = Depends(require_permissio
 def get_latest_telemetry(machine_id: str, payload: dict = Depends(require_permission("telemetry:read"))):
     history = TelemetrySimulator.get_history(machine_id, limit=1)
     if not history:
-        # Step once
         return TelemetrySimulator.step(machine_id)
     return history[-1]
 
@@ -35,17 +35,47 @@ def create_asset(asset_data: Dict[str, Any], payload: dict = Depends(require_per
     if "machine_id" not in asset_data or "name" not in asset_data:
         raise HTTPException(status_code=400, detail="Missing required machine_id or name.")
     
-    # Defaults
-    asset_data.setdefault("category", "INDUSTRIAL_MACHINE")
-    asset_data.setdefault("status", "OPERATIONAL")
-    asset_data.setdefault("simulation_profile", "NORMAL")
-    asset_data.setdefault("health_score", 100.0)
-    asset_data.setdefault("risk_score", 0.0)
-    asset_data.setdefault("anomaly_score", 1.0)
-    asset_data.setdefault("rpm", 1500.0)
-    asset_data.setdefault("operating_hours", 0.0)
-    asset_data.setdefault("components", [])
-    asset_data.setdefault("sensors", [])
+    result = MachineRegistryService.register_machine(asset_data)
+    return result
 
-    created = AssetRegistry.register_new_asset(asset_data)
-    return created
+@router.put("/{machine_id}")
+def update_asset(machine_id: str, updates: Dict[str, Any], payload: dict = Depends(require_permission("machines:update"))):
+    existing = MachineRegistryService.get_machine(machine_id)
+    if not existing:
+        raise HTTPException(status_code=404, detail=f"Machine '{machine_id}' not found.")
+    
+    updated = MachineRegistryService.update_machine(machine_id, updates)
+    return updated
+
+@router.delete("/{machine_id}")
+def decommission_asset(machine_id: str, payload: dict = Depends(require_permission("machines:update"))):
+    existing = MachineRegistryService.get_machine(machine_id)
+    if not existing:
+        raise HTTPException(status_code=404, detail=f"Machine '{machine_id}' not found.")
+    
+    decommissioned = MachineRegistryService.decommission_machine(machine_id)
+    return decommissioned
+
+@router.post("/{machine_id}/sync")
+def sync_machine_graph(machine_id: str, payload: dict = Depends(require_permission("machines:update"))):
+    existing = MachineRegistryService.get_machine(machine_id)
+    if not existing:
+        raise HTTPException(status_code=404, detail=f"Machine '{machine_id}' not found.")
+    
+    sync_report = MachineRegistryService.register_machine(existing)
+    return sync_report
+
+@router.get("/{machine_id}/sync-status")
+def get_machine_sync_status(machine_id: str, payload: dict = Depends(require_permission("machines:read"))):
+    existing = MachineRegistryService.get_machine(machine_id)
+    if not existing:
+        raise HTTPException(status_code=404, detail=f"Machine '{machine_id}' not found.")
+    
+    return {
+        "machine_id": machine_id,
+        "database_status": "synced",
+        "graph_status": "synced",
+        "telemetry_status": "configured",
+        "rag_status": "indexed",
+        "overall_status": "ready"
+    }

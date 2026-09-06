@@ -1,0 +1,18 @@
+STANDARD OPERATING PROCEDURE: SOP-MNT-042
+TITLE: Industrial Spindle Angular Contact Bearing Lubrication & Inspection
+REVISION: 4.2 | ASSET APPLICABILITY: Machine-001, Machine-002, Turning Centers
+
+1. PURPOSE & SCOPE
+This procedure specifies mandatory preventive maintenance for high-speed angular contact spindle bearings (Type B-201 and ceramic hybrid variants). Adherence prevents inner race spalling, fatigue cracking, and severe radial vibration trips.
+
+2. SYMPTOMS OF LUBRICATION BREAKDOWN
+- Radial vibration exceeding ISO 10816 threshold of 2.8 mm/s in frequency bands 1.5x to 3.2x rotational speed.
+- Localized bearing housing temperature climbing past 75°C under nominal motor current load (indicates thermal divergence due to grease starvation or unbalance).
+- Acoustic high-frequency friction whistling.
+
+3. REMEDIATION PROTOCOL
+Step 1: Safely reduce spindle RPM below 1200 RPM before engaging mechanical interlocks.
+Step 2: Isolate electrical supply and apply Lockout/Tagout (LOTO).
+Step 3: Purge degraded synthetic polyurea grease and inspect for metallic debris using optical inspection.
+Step 4: Replenish with exactly 12 ml of Klüber Isoflex NBU 15 high-speed spindle grease.
+Step 5: Perform dynamic run-in cycle: 20 minutes at 500 RPM, 20 minutes at 1500 RPM, monitoring vibration until baseline under 1.5 mm/s is restored.

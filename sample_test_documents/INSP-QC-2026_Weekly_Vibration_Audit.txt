@@ -1,0 +1,25 @@
+SOVEREIGN INDUSTRIAL FIELD QUALITY INSPECTION AUDIT SHEET
+AUDIT CODE: AUD-2026-W09
+DATE OF AUDIT: 2026-03-01
+INSPECTOR: Lead Condition Monitoring Specialist
+CLASSIFICATION: INTERNAL
+PLANT AREA: Machine Shop & Turning Bay
+
+ASSET 1: Machine-001 (5-Axis CNC Milling Center)
+- Drive Motor Vibration: 1.15 mm/s RMS (Status: EXCELLENT, ISO Limit: 2.8 mm/s).
+- Spindle Nose Radial Runout: 0.003 mm (Tolerance: 0.005 mm).
+- Axis X/Y/Z Backlash: 0.004 mm across all axes.
+- Front Hybrid Bearing Temperature: 42.1°C (Nominal).
+- Audit Result: PASS. Machine released for aerospace titanium milling batches.
+
+ASSET 2: Machine-002 (Heavy Duty Turning Center)
+- Spindle Main Bearing B-201 Vibration: 3.82 mm/s RMS (Status: ELEVATED / WARNING, Alarm Threshold: 2.8 mm/s).
+- Spectral Peak Detected: 142 Hz (Harmonic frequency indicates outer race spalling and lubrication starvation).
+- Bearing Temperature: 78.4°C under 1800 RPM dry run.
+- Hydraulic Chuck Pressure: 38.2 bar (Stable).
+- Mandatory Action Required: Execute SOP-MNT-042 bearing regreasing protocol. Purge old grease, replenish with 12 ml Klüber Isoflex NBU 15. If vibration persists above 2.8 mm/s after regreasing, schedule bearing replacement during scheduled Sunday shutdown.
+
+ASSET 3: Pump-001 (High-Pressure Coolant Pump)
+- Motor Vibration: 1.85 mm/s RMS (Normal).
+- Impeller Cavitation Noise: Not detected. Suction pressure 1.8 bar.
+- Audit Result: PASS.

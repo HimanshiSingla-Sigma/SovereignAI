@@ -21,11 +21,12 @@ class ApprovalService:
     ) -> Dict[str, Any]:
         req_id = f"APPR-{uuid.uuid4().hex[:8].upper()}"
         now = datetime.now(timezone.utc).isoformat()
+        target = target_resource or "SYSTEM"
 
         record = {
             "request_id": req_id,
             "action_type": action_type,
-            "target_resource": target_resource,
+            "target_resource": target,
             "requested_by": requested_by,
             "required_role": required_role,
             "justification": justification,

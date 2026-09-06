@@ -22,29 +22,31 @@ class ModelCompatibilityChecker:
                 f"Requires {model['ram_required_gb']} GB RAM, which exceeds safe allocation budget ({max_budget} GB) for current {profile.tier} tier."
             )
 
-        # Check GPU VRAM if model requires dedicated GPU
-        if model.get("vram_required_gb", 0) > 0:
-            if not gpu.get("has_dedicated_gpu"):
+        # Check GPU VRAM ONLY if model cannot run on CPU (or explicitly requires dedicated GPU)
+        is_cpu_compat = model.get("cpu_compatible", True)
+        has_gpu = gpu.get("has_dedicated_gpu", False) or gpu.get("metal_available", False)
+
+        if not is_cpu_compat:
+            vram_req = model.get("vram_required_gb", 0.0)
+            if not has_gpu:
                 is_compatible = False
                 reasons.append(
-                    f"Requires dedicated GPU with {model['vram_required_gb']} GB VRAM. Detected: {gpu['gpu_name']} ({gpu['vram_mb']} MB integrated)."
+                    f"Requires dedicated GPU acceleration ({vram_req} GB VRAM). Detected: {gpu.get('gpu_name', 'Host CPU')}."
                 )
-            elif (gpu.get("vram_mb", 0) / 1024) < model["vram_required_gb"]:
+            elif vram_req > 0 and ((gpu.get("vram_mb", 0) / 1024) < vram_req):
                 is_compatible = False
                 reasons.append(
-                    f"Insufficient VRAM: requires {model['vram_required_gb']} GB, detected {round(gpu.get('vram_mb', 0)/1024, 1)} GB."
+                    f"Insufficient VRAM: requires {vram_req} GB, detected {round(gpu.get('vram_mb', 0)/1024, 1)} GB."
                 )
 
-        # Check CPU compatibility
-        if not model.get("cpu_compatible", True) and not gpu.get("has_dedicated_gpu"):
-            is_compatible = False
-            reasons.append("Model architecture cannot run at acceptable latency on dual-core CPU without dedicated GPU acceleration.")
+        reason_str = "; ".join(reasons) if not is_compatible else "Hardware profile meets memory and compute requirements."
 
         return {
             "model_id": model["model_id"],
             "name": model["name"],
             "is_compatible": is_compatible,
             "status": "COMPATIBLE" if is_compatible else "INCOMPATIBLE",
+            "reason": reason_str,
             "reasons": reasons if not is_compatible else ["Hardware profile meets memory and compute requirements."],
             "ram_required_gb": model["ram_required_gb"],
             "vram_required_gb": model["vram_required_gb"],

@@ -1,0 +1,11 @@
+Analyze the user request and formulate a structured TaskPlan matching the JSON schema below.
+Follow the agent boundary rules strictly:
+- If query mentions sensors, vibration, temperature, RPM, machine status, or telemetry -> assign to TELEMETRY agent.
+- If query mentions SOPs, manuals, procedures, or compliance docs -> assign to RAG agent.
+- If query asks to evaluate safety limits or rules -> assign to SAFETY_CONTROL with action_type="CHECK_SAFETY_LIMITS" (requires_human_approval=false).
+- If query commands physical machine shutdown, motor trip, or valve override -> assign to SAFETY_CONTROL with action_type="EMERGENCY_SHUTDOWN" (requires_human_approval=true).
+
+User Request: {query}
+Target Asset Context: {machine_context}
+
+{format_instructions}

@@ -123,6 +123,7 @@ class TelemetrySimulator:
             "gas": round(gas, 2),
             "anomaly_score": anomaly_score,
             "machine_status": status,
+            "data_source": "SIMULATOR",
             "sensor_health": {
                 "temperature_sensor": True,
                 "vibration_sensor": True,
