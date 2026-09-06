@@ -13,8 +13,30 @@ export default defineConfig({
     host: '0.0.0.0',
     // Dev proxy so a tablet hitting http://<lan-ip>:5173 reaches the backend same-origin.
     proxy: {
-      '/api': { target: 'http://127.0.0.1:8000', changeOrigin: true },
-      '/ws': { target: 'ws://127.0.0.1:8000', ws: true },
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on('error', (err: any) => {
+            // Gracefully handle when backend is restarting or temporarily down
+            if (err.code !== 'ECONNRESET' && err.code !== 'ETIMEDOUT' && err.code !== 'ECONNREFUSED') {
+              console.warn('[vite api proxy error]', err.message)
+            }
+          })
+        }
+      },
+      '/ws': {
+        target: 'ws://127.0.0.1:8000',
+        ws: true,
+        configure: (proxy) => {
+          proxy.on('error', (err: any) => {
+            // Gracefully handle websocket disconnects during backend restarts
+            if (err.code !== 'ECONNRESET' && err.code !== 'ETIMEDOUT' && err.code !== 'EPIPE' && err.code !== 'ECONNREFUSED') {
+              console.warn('[vite ws proxy error]', err.message)
+            }
+          })
+        }
+      },
     },
   },
   preview: { port: 4173, host: '0.0.0.0' },
