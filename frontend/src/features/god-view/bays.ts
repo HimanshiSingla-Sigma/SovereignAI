@@ -42,7 +42,10 @@ const RED = '#f85149'
  */
 export function beaconFor(status: string, anomaly: number): { beacon: BeaconMode; color: string } {
   const s = status.toUpperCase()
-  if (['CRITICAL', 'EMERGENCY', 'FAILURE', 'SHUTDOWN'].includes(s) || anomaly >= 80) {
+  if (s === 'SHUTDOWN') {
+    return { beacon: 'steady', color: '#64748b' } // De-energized safe state
+  }
+  if (['CRITICAL', 'EMERGENCY', 'FAILURE'].includes(s) || anomaly >= 80) {
     return { beacon: 'strobe', color: RED }
   }
   if (['WARNING', 'DEGRADED'].includes(s) || anomaly >= 45) {

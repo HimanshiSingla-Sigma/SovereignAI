@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Cpu, LogOut, Menu, Volume2, VolumeX, WifiOff, Zap, ZapOff } from 'lucide-react'
+import { Cpu, LogOut, Menu, Moon, Sun, Volume2, VolumeX, WifiOff, Zap, ZapOff } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useSound } from '@/hooks/useSound'
@@ -17,7 +17,7 @@ const ROLE_TONE: Record<string, 'ok' | 'warn' | 'crit' | 'info' | 'muted'> = {
 export default function Topbar({ onOpenNav }: { onOpenNav: () => void }) {
   const { pathname } = useLocation()
   const { username, role, logout } = useAuthStore()
-  const { perfMode, muted, togglePerfMode, toggleMuted } = useSettingsStore()
+  const { perfMode, muted, theme, togglePerfMode, toggleMuted, toggleTheme } = useSettingsStore()
   const { play } = useSound()
 
   const title = useMemo(() => NAV_ITEMS.find((i) => pathname.startsWith(i.to))?.label ?? 'Workbench', [pathname])
@@ -53,6 +53,25 @@ export default function Topbar({ onOpenNav }: { onOpenNav: () => void }) {
         >
           {perfMode === 'full' ? <Zap className="h-3.5 w-3.5" /> : <ZapOff className="h-3.5 w-3.5" />}
           <span className="hidden sm:inline">{perfMode === 'full' ? 'Full' : 'Lite'}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            toggleTheme()
+            play('toggle')
+          }}
+          className="flex min-h-[44px] items-center gap-1.5 rounded-ctl border border-hairline bg-raised px-2.5 text-[11px]
+            text-muted transition-colors hover:border-accent/50 hover:text-accent sm:px-3"
+          title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          aria-label={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+        >
+          {theme === 'dark' ? (
+            <Moon className="h-3.5 w-3.5 text-blue-400" />
+          ) : (
+            <Sun className="h-3.5 w-3.5 text-amber-500" />
+          )}
+          <span className="hidden sm:inline capitalize">{theme}</span>
         </button>
 
         <button

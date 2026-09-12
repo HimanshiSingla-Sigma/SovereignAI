@@ -179,3 +179,9 @@ async def websocket_telemetry_endpoint(websocket: WebSocket, machine_id: str):
         pass
     except Exception:
         await websocket.close()
+
+# Mount Frontend Single-Page App if dist exists (Portable SSD Single-Server Mode)
+from fastapi.staticfiles import StaticFiles
+dist_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "frontend", "dist")
+if os.path.isdir(dist_path):
+    app.mount("/", StaticFiles(directory=dist_path, html=True), name="frontend")

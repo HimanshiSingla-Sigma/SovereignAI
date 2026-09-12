@@ -8,6 +8,7 @@ import { num, severityOf } from '@/lib/format'
 import { pickDefaultMachine } from '@/lib/pickMachine'
 import { Badge, EmptyState, ErrorState, Loading, PageHeader, Panel, Stat } from '@/components/ui'
 import MachineChips from '@/components/MachineChips'
+import { useAlertStore } from '@/store/alertStore'
 
 interface Deltas {
   temp_delta: number
@@ -86,20 +87,85 @@ export default function SimulationPage() {
   }
 
   const result = whatIf.data
+  const setWhatIfOverride = useAlertStore((s) => s.setWhatIfOverride)
+
+  useEffect(() => {
+    if (!machineId) return
+    if (result) {
+      const isCrit =
+        result.predicted_safety_state === 'CRITICAL' ||
+        result.predicted_anomaly_score > 70 ||
+        deltas.temp_delta > 35 ||
+        deltas.vibration_delta > 4.5
+      const isWarn =
+        !isCrit &&
+        (result.predicted_safety_state === 'WARNING' ||
+          result.predicted_anomaly_score > 35 ||
+          deltas.temp_delta > 15 ||
+          deltas.vibration_delta > 2.0)
+
+      if (isCrit) {
+        setWhatIfOverride({
+          machineId,
+          active: true,
+          status: 'CRITICAL',
+          anomalyScore: Math.round(result.predicted_anomaly_score),
+          temperature: typeof result.simulated_state.temperature === 'number' ? result.simulated_state.temperature : 98,
+          vibration: typeof result.simulated_state.vibration === 'number' ? result.simulated_state.vibration : 8.5,
+          reason: result.comparison_summary || 'What-If Simulation critical interlock breach',
+        })
+      } else if (isWarn) {
+        setWhatIfOverride({
+          machineId,
+          active: true,
+          status: 'WARNING',
+          anomalyScore: Math.round(result.predicted_anomaly_score),
+          temperature: typeof result.simulated_state.temperature === 'number' ? result.simulated_state.temperature : 60,
+          vibration: typeof result.simulated_state.vibration === 'number' ? result.simulated_state.vibration : 3.8,
+        })
+      } else {
+        setWhatIfOverride(null, machineId)
+      }
+    }
+  }, [result, machineId, deltas.temp_delta, deltas.vibration_delta, setWhatIfOverride])
+
+  const machineLive = useAlertStore((s) => s.live[machineId ?? ''])
+  useEffect(() => {
+    if (machineLive?.status === 'SHUTDOWN') {
+      setDeltas(DEFAULTS)
+      whatIf.reset()
+    }
+  }, [machineLive?.status])
+
+  const handleReset = () => {
+    setDeltas(DEFAULTS)
+    whatIf.reset()
+    if (machineId) {
+      setWhatIfOverride(null, machineId)
+      useAlertStore.getState().clearEmergency()
+    }
+    play('click')
+  }
+
+  useEffect(() => {
+    return () => {
+      if (machineId) {
+        useAlertStore.getState().setWhatIfOverride(null, machineId)
+        useAlertStore.getState().clearEmergency()
+      }
+    }
+  }, [machineId])
 
   return (
     <div className="space-y-4">
       <PageHeader
         title="What-if simulation"
-        subtitle="Isolated projection — never writes back to the live digital twin"
+        subtitle="Simulate operational stress and project machine outcomes"
         right={
           <button
             type="button"
             className="btn btn-sm"
-            onClick={() => {
-              setDeltas(DEFAULTS)
-              play('click')
-            }}
+            onClick={handleReset}
           >
             <RotateCcw className="h-3.5 w-3.5" /> Reset
           </button>

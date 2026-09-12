@@ -33,6 +33,8 @@ export default function GraphCanvas({
   selectedId?: string | null
 }) {
   const lite = useSettingsStore((s) => s.perfMode) === 'lite'
+  const theme = useSettingsStore((s) => s.theme)
+  const isLight = theme === 'light'
   const wrapRef = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ width: 800, height: 480 })
 
@@ -127,7 +129,7 @@ export default function GraphCanvas({
     <>
       <div
         ref={wrapRef}
-        className="relative h-[380px] w-full overflow-hidden rounded-ctl border border-hairline bg-[#0b0e13] sm:h-[520px]"
+        className="relative h-[380px] w-full overflow-hidden rounded-ctl border border-slate-200 bg-slate-50/70 shadow-inner dark:border-hairline dark:bg-[#0b0e13] sm:h-[520px]"
       >
       <svg
         width="100%"
@@ -141,13 +143,18 @@ export default function GraphCanvas({
         aria-label="Knowledge graph traversal"
       >
         <defs>
-          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#33404d" />
+          <pattern id="graph-grid" width="28" height="28" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1.1" fill={isLight ? '#94a3b8' : '#334155'} opacity={isLight ? 0.45 : 0.4} />
+          </pattern>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill={isLight ? '#64748b' : '#475569'} />
           </marker>
-          <marker id="arrow-lit" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#f85149" />
+          <marker id="arrow-lit" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill={isLight ? '#dc2626' : '#f85149'} />
           </marker>
         </defs>
+
+        <rect width="100%" height="100%" fill="url(#graph-grid)" />
 
         <g transform={`translate(${view.x},${view.y}) scale(${view.k})`}>
           {edges.map((edge, i) => {
@@ -165,10 +172,14 @@ export default function GraphCanvas({
             const uy = dy / len
             const rA = radiusOf(nodeTypeById.get(edge.source))
             const rB = radiusOf(nodeTypeById.get(edge.target))
-            const x1 = a.x + ux * (rA + 3)
-            const y1 = a.y + uy * (rA + 3)
-            const x2 = b.x - ux * (rB + 7)
-            const y2 = b.y - uy * (rB + 7)
+            const x1 = a.x + ux * (rA + 4)
+            const y1 = a.y + uy * (rA + 4)
+            const x2 = b.x - ux * (rB + 8)
+            const y2 = b.y - uy * (rB + 8)
+
+            const strokeColor = lit
+              ? (isLight ? '#dc2626' : '#f85149')
+              : (isLight ? '#94a3b8' : '#334155')
 
             return (
               <g key={`${edge.source}-${edge.target}-${i}`}>
@@ -177,18 +188,22 @@ export default function GraphCanvas({
                   y1={y1}
                   x2={x2}
                   y2={y2}
-                  stroke={lit ? '#f85149' : '#232a33'}
-                  strokeWidth={lit ? 2.4 : 1.2}
+                  stroke={strokeColor}
+                  strokeWidth={lit ? 2.6 : 1.5}
                   markerEnd={lit ? 'url(#arrow-lit)' : 'url(#arrow)'}
-                  style={lit && !lite ? { filter: 'drop-shadow(0 0 6px rgba(248,81,73,0.85))' } : undefined}
+                  style={lit && !lite ? { filter: `drop-shadow(0 0 6px ${isLight ? 'rgba(220,38,38,0.7)' : 'rgba(248,81,73,0.85)'})` } : undefined}
                 />
                 {lit && (
                   <text
                     x={(x1 + x2) / 2}
                     y={(y1 + y2) / 2 - 7}
                     textAnchor="middle"
-                    className="fill-crit font-mono"
-                    fontSize={9}
+                    className="font-mono text-[9.5px] font-bold"
+                    fill={isLight ? '#dc2626' : '#f85149'}
+                    stroke={isLight ? '#ffffff' : '#0b0e13'}
+                    strokeWidth={3.5}
+                    strokeLinejoin="round"
+                    paintOrder="stroke"
                   >
                     {edge.type}
                   </text>
@@ -200,11 +215,21 @@ export default function GraphCanvas({
           {nodes.map((node) => {
             const p = posById.get(node.id)
             if (!p) return null
-            const color = typeColor(node.type)
+            const color = typeColor(node.type, isLight)
             const lit = litNodes.has(node.id)
             const leading = leadingNodeId === node.id
             const selected = selectedId === node.id
             const radius = radiusOf(node.type)
+
+            const mainStroke = lit
+              ? (isLight ? '#dc2626' : '#f85149')
+              : selected
+              ? (isLight ? '#d97706' : '#f5a623')
+              : color
+
+            const nodeFill = lit
+              ? (isLight ? '#fee2e2' : 'rgba(248,81,73,0.22)')
+              : (isLight ? '#ffffff' : '#111722')
 
             return (
               <g
@@ -212,33 +237,65 @@ export default function GraphCanvas({
                 transform={`translate(${p.x},${p.y})`}
                 className="cursor-pointer"
                 onClick={() => onSelectNode?.(node)}
-                style={lit && !lite ? { color: '#f85149' } : undefined}
+                style={lit && !lite ? { color: isLight ? '#dc2626' : '#f85149' } : undefined}
               >
+                {/* Lit pulse wave */}
                 {lit && (
                   <circle
                     r={radius + (leading ? 12 : 7)}
                     fill="none"
-                    stroke="#f85149"
-                    strokeWidth={leading ? 2 : 1}
-                    opacity={leading ? 0.85 : 0.45}
+                    stroke={isLight ? '#dc2626' : '#f85149'}
+                    strokeWidth={leading ? 2.5 : 1.5}
+                    opacity={leading ? 0.9 : 0.45}
                     className={leading && !lite ? 'animate-node-pulse' : undefined}
                   />
                 )}
+
+                {/* Selected dashed focus ring */}
+                {selected && !lit && (
+                  <circle
+                    r={radius + 6}
+                    fill="none"
+                    stroke={isLight ? '#d97706' : '#f5a623'}
+                    strokeWidth={2}
+                    strokeDasharray="3 3"
+                    opacity={0.85}
+                  />
+                )}
+
+                {/* Main circular node container */}
                 <circle
                   r={radius}
-                  fill={lit ? 'rgba(248,81,73,0.18)' : '#12161c'}
-                  stroke={lit ? '#f85149' : selected ? '#f5a623' : color}
-                  strokeWidth={lit || selected ? 2.2 : 1.4}
-                  style={lit && !lite ? { filter: 'drop-shadow(0 0 10px rgba(248,81,73,0.8))' } : undefined}
+                  fill={nodeFill}
+                  stroke={mainStroke}
+                  strokeWidth={lit || selected ? 3 : 2.4}
+                  style={
+                    lit && !lite
+                      ? { filter: `drop-shadow(0 0 10px ${isLight ? 'rgba(220,38,38,0.7)' : 'rgba(248,81,73,0.85)'})` }
+                      : isLight
+                      ? { filter: 'drop-shadow(0 2px 5px rgba(15,23,42,0.12))' }
+                      : { filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }
+                  }
                 />
+
+                {/* Solid inner center pip - provides instant vivid entity coloring */}
+                <circle
+                  r={radius * 0.45}
+                  fill={mainStroke}
+                  opacity={isLight ? 0.95 : 0.85}
+                />
+
+                {/* Node ID label with clear contrast halo */}
                 <text
-                  y={p.y > size.height * 0.62 ? -(radius + 9) : radius + 14}
+                  y={p.y > size.height * 0.62 ? -(radius + 9) : radius + 15}
                   textAnchor="middle"
-                  fontSize={9.5}
-                  className="pointer-events-none font-mono"
-                  fill={lit ? '#f85149' : '#8b98a5'}
-                  stroke="#0b0e13"
-                  strokeWidth={3}
+                  fontSize={10}
+                  fontWeight={600}
+                  className="pointer-events-none font-mono select-none"
+                  fill={lit ? (isLight ? '#dc2626' : '#f85149') : (isLight ? '#0f172a' : '#f1f5f9')}
+                  stroke={isLight ? '#ffffff' : '#0b0e13'}
+                  strokeWidth={isLight ? 4 : 3.5}
+                  strokeLinejoin="round"
                   paintOrder="stroke"
                 >
                   {node.id.length > 18 ? `${node.id.slice(0, 17)}…` : node.id}
@@ -249,12 +306,12 @@ export default function GraphCanvas({
         </g>
       </svg>
 
-      <div className="pointer-events-none absolute right-3 top-2 rounded-full border border-hairline bg-card/85 px-2 py-0.5 text-[9px] text-muted">
+      <div className="pointer-events-none absolute right-3 top-2 rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 text-[10px] font-medium text-slate-600 shadow-sm backdrop-blur-sm dark:border-hairline dark:bg-card/85 dark:text-muted">
         {lite ? 'Lite · layered' : 'Full · force-directed'} · drag to pan, pinch to zoom
       </div>
       </div>
 
-      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1.5 text-[10px] text-muted">
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
         {(
           [
             ['Machine', 'Machine'],
@@ -263,14 +320,28 @@ export default function GraphCanvas({
             ['Incident', 'Incident'],
             ['MaintenanceProcedure', 'SOP'],
           ] as const
-        ).map(([type, label]) => (
-          <span key={type} className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full border-2" style={{ borderColor: typeColor(type) }} />
-            {label}
-          </span>
-        ))}
-        <span className="flex items-center gap-1.5 text-crit">
-          <span className="h-0.5 w-4 rounded bg-crit" /> causal chain
+        ).map(([type, label]) => {
+          const c = typeColor(type, isLight)
+          return (
+            <span key={type} className="flex items-center gap-1.5 font-medium">
+              <span
+                className="flex h-3.5 w-3.5 items-center justify-center rounded-full border-2"
+                style={{
+                  borderColor: c,
+                  backgroundColor: isLight ? '#ffffff' : '#111722',
+                }}
+              >
+                <span
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{ backgroundColor: c }}
+                />
+              </span>
+              <span className="text-slate-800 dark:text-slate-200">{label}</span>
+            </span>
+          )
+        })}
+        <span className="flex items-center gap-1.5 font-medium text-crit">
+          <span className="h-1 w-4 rounded bg-crit" /> causal chain
         </span>
       </div>
     </>

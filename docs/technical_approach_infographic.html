@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  body {
+    width: 1600px;
+    height: 900px;
+    background: #f8fafc;
+    color: #0f172a;
+    padding: 16px 24px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* TOP HEADER */
+  .top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    margin-bottom: 8px;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 6px;
+  }
+  .brand-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0284c7;
+    letter-spacing: -0.5px;
+  }
+  .brand-sub {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    margin-top: -2px;
+  }
+  .main-slide-title {
+    font-size: 22px;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .main-slide-subtitle {
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    text-align: center;
+    letter-spacing: 0.3px;
+  }
+  .sih-badge {
+    text-align: right;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sih-text {
+    font-size: 11px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+  }
+  .sih-year {
+    color: #ea580c;
+    font-size: 12px;
+  }
+  .globe-icon {
+    font-size: 20px;
+  }
+
+  /* TOP DECISION BAR: STAGE 1 FASTAPI GATEWAY */
+  .decision-bar {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 6px 14px;
+    height: 48px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    gap: 12px;
+  }
+  .start-badge {
+    background: #0f172a;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .gateway-stage1 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 4px 10px;
+    flex-grow: 1;
+  }
+  .stage-tag {
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .gateway-title {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #1e293b;
+  }
+  .gateway-desc {
+    font-size: 10px;
+    color: #475569;
+    font-weight: 600;
+  }
+  .branch-pills {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .branch-pill {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .branch-diagnostic {
+    background: #fff7ed;
+    border: 1px solid #ea580c;
+    color: #ea580c;
+  }
+  .branch-online {
+    background: #eff6ff;
+    border: 1px solid #2563eb;
+    color: #2563eb;
+  }
+  .branch-safety {
+    background: #f0fdf4;
+    border: 1px solid #16a34a;
+    color: #16a34a;
+  }
+
+  /* 3 COLUMNS CONTAINER */
+  .rails-container {
+    display: grid;
+    grid-template-columns: 780px 370px 370px;
+    gap: 16px;
+    height: 742px;
+  }
+
+  /* TRACK BASE */
+  .rail {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  }
+  .rail-diagnostic {
+    border: 2px dashed #ea580c;
+  }
+  .rail-online {
+    border: 2px dashed #2563eb;
+  }
+  .rail-safety {
+    border: 2px dashed #16a34a;
+  }
+
+  /* RAIL HEADERS */
+  .rail-header {
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+  }
+  .header-diagnostic { background: #ea580c; }
+  .header-online { background: #2563eb; }
+  .header-safety { background: #16a34a; }
+
+  /* LEFT RAIL: COGNITIVE WORKFLOW GRID */
+  .workflow-grid-box {
+    background: #fffaf5;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+  }
+  .workflow-section-title {
+    font-size: 10px;
+    font-weight: 800;
+    color: #c2410c;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .flow-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    align-items: stretch;
+  }
+  .flow-card {
+    background: #ffffff;
+    border: 1.5px solid #fdba74;
+    border-radius: 6px;
+    padding: 6px 8px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .flow-card-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 2px;
+  }
+  .flow-icon {
+    font-size: 13px;
+  }
+  .flow-card-title {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.15;
+  }
+  .flow-card-desc {
+    font-size: 9px;
+    font-weight: 600;
+    color: #64748b;
+    line-height: 1.2;
+  }
+
+  .arrow-connector {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 2px 20px;
+    color: #ea580c;
+    font-weight: 800;
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  /* HARDWARE-AWARE MODEL ROUTER CONTAINER */
+  .router-container {
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+  }
+  .router-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .router-title {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .budget-badge {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    color: #b45309;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .profiler-strip {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 9px;
+    color: #334155;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tiers-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .tier-card {
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 8px;
+  }
+  .tier-card.tier-1 { border-left: 4px solid #ea580c; }
+  .tier-card.tier-2 { border-left: 4px solid #0284c7; }
+  .tier-card.tier-3 { border-left: 4px solid #16a34a; }
+  .tier-name {
+    font-size: 10px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 1px;
+  }
+  .tier-spec {
+    font-size: 8.5px;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .tier-model {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: #0369a1;
+  }
+
+  .lifecycle-bar {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+    padding: 4px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: #334155;
+  }
+  .lifecycle-step {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .lifecycle-arrow {
+    color: #ea580c;
+    font-weight: 900;
+  }
+
+  /* CORE TECH STACK GRID */
+  .tech-container {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 7px 10px;
+    flex-grow: 1;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+  }
+  .tech-title {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+  }
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    flex-grow: 1;
+  }
+  .tech-badge {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    padding: 5px 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tech-badge-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .tech-badge-name {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+  }
+  .tech-badge-sub {
+    font-size: 8px;
+    font-weight: 600;
+    color: #64748b;
+    line-height: 1.1;
+  }
+
+  /* STATUS PILLS */
+  .status-pill {
+    height: 26px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffffff;
+    gap: 6px;
+  }
+  .status-diagnostic { background: #ea580c; }
+  .status-online { background: #2563eb; }
+  .status-safety { background: #16a34a; }
+
+  /* MIDDLE & RIGHT TRACK VERTICAL CARDS */
+  .vertical-cards-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    flex-grow: 1;
+    margin-bottom: 8px;
+  }
+  .vertical-card {
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 8px 12px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  }
+  .rail-online .vertical-card {
+    border: 1.5px solid #93c5fd;
+  }
+  .rail-safety .vertical-card {
+    border: 1.5px solid #86efac;
+  }
+  .v-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .v-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .v-title {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+  }
+  .v-sub {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #475569;
+    line-height: 1.2;
+  }
+
+  /* SLIDE FOOTER */
+  .slide-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 20px;
+    margin-top: 6px;
+    padding: 0 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+  }
+  .slide-num {
+    font-size: 12px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+</style>
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <div class="top-header">
+    <div>
+      <div class="brand-title">Sovereign AI Workbench</div>
+      <div class="brand-sub">Dual-Rail Air-Gapped Industrial Intelligence Architecture</div>
+    </div>
+    <div>
+      <div class="main-slide-title">TECHNICAL APPROACH & EXECUTION PIPELINE</div>
+      <div class="main-slide-subtitle">Deterministic Dual-Rail Operational Topology & Silicon Routing Matrix</div>
+    </div>
+    <div class="sih-badge">
+      <div class="sih-text">SMART INDIA<br><span class="sih-year">HACKATHON 2026</span></div>
+      <div class="globe-icon">🌐</div>
+    </div>
+  </div>
+
+  <!-- STAGE 1: FASTAPI API GATEWAY DECISION BAR -->
+  <div class="decision-bar">
+    <div class="start-badge">🚀 Start Here ➔</div>
+    <div class="gateway-stage1">
+      <span class="stage-tag">STAGE 1</span>
+      <div>
+        <div class="gateway-title">FastAPI API Ingress Gateway (/api/orchestrator/execute)</div>
+        <div class="gateway-desc">JWT Auth & RBAC Clearance (OPERATOR vs ENGINEER vs SAFETY_OFFICER) • Sub-millisecond Event Demux</div>
+      </div>
+    </div>
+    <div class="branch-pills">
+      <div class="branch-pill branch-diagnostic">⚙️ Diagnostic / Anomaly ➔</div>
+      <div class="branch-pill branch-online">📡 Live Telemetry ➔</div>
+      <div class="branch-pill branch-safety">🚨 Actuator / E-Stop ➔</div>
+    </div>
+  </div>
+
+  <!-- 3 COLUMNS CONTAINER -->
+  <div class="rails-container">
+
+    <!-- ==================== LEFT COLUMN: DIAGNOSTIC & COGNITIVE ==================== -->
+    <div class="rail rail-diagnostic">
+      <div class="rail-header header-diagnostic">
+        ⚙️ Diagnostic & Cognitive Intelligence (Stages 2, 3, 4, 5, 7)
+      </div>
+
+      <!-- WORKFLOW GRID -->
+      <div class="workflow-grid-box">
+        <div class="workflow-section-title">
+          <span>Cognitive Ingress, Planning & Grounded Retrieval Loop</span>
+          <span>Cyclic State Machine</span>
+        </div>
+
+        <!-- ROW 1: INGRESS & PLANNING -->
+        <div class="flow-row">
+          <!-- Card 1: Model Gateway -->
+          <div class="flow-card">
+            <div class="flow-card-header">
+              <span class="flow-icon">🛡️</span>
+              <span class="flow-card-title">Stage 2: Model Gateway</span>
+            </div>
+            <div class="flow-card-desc">PromptGuard 5-Threat Scan & Untrusted XML Enclosure</div>
+          </div>
+          <!-- Card 2: LangGraph Orchestrator -->
+          <div class="flow-card">
+            <div class="flow-card-header">
+              <span class="flow-icon">🧠</span>
+              <span class="flow-card-title">Stage 3: LangGraph Brain</span>
+            </div>
+            <div class="flow-card-desc">Intent Analysis, TaskPlan & Domain Boundary Realigner</div>
+          </div>
+          <!-- Card 3: Vision & OCR Agent -->
+          <div class="flow-card">
+            <div class="flow-card-header">
+              <span class="flow-icon">👁️</span>
+              <span class="flow-card-title">Stage 4: VisionOcrAgent</span>
+            </div>
+            <div class="flow-card-desc">LocalOCREngine: pypdfium2 & pytesseract Offline OCR</div>
+          </div>
+          <!-- Card 4: Reasoning Agent -->
+          <div class="flow-card">
+            <div class="flow-card-header">
+              <span class="flow-icon">🔬</span>
+              <span class="flow-card-title">Stage 4: ReasoningAgent</span>
+            </div>
+            <div class="flow-card-desc">Multi-sensor Root Cause & Empirical Grounding</div>
+          </div>
+        </div>
+
+        <!-- CONNECTOR ARROW -->
+        <div class="arrow-connector">⇣ Cyclic Grounding & Verification</div>
+
+        <!-- ROW 2: GROUNDING & EVIDENCE -->
+        <div class="flow-row">
+          <!-- Card 5: OutputGuard -->
+          <div class="flow-card">
+            <div class="flow-card-header">
+              <span class="flow-icon">📋</span>
+              <span class="flow-card-title">Stage 7: OutputGuard</span>
+            </div>
+            <div class="flow-card-desc">Credential Redaction & Sanitized Action Setpoints</div>
+          </div>
+          <!-- Card 6: OEM Grounding -->
+          <div class="flow-card">
+            <div class="flow-card-header">
+              <span class="flow-icon">📖</span>
+              <span class="flow-card-title">OEM Grounding</span>
+            </div>
+            <div class="flow-card-desc">100% Page Citations from Plant Technical Manuals</div>
+          </div>
+          <!-- Card 7: GraphRAG -->
+          <div class="flow-card">
+            <div class="flow-card-header">
+              <span class="flow-icon">🕸️</span>
+              <span class="flow-card-title">Causal GraphRAG</span>
+            </div>
+            <div class="flow-card-desc">Multi-hop Chains: Machine ➔ Component ➔ Incident ➔ SOP</div>
+          </div>
+          <!-- Card 8: Qdrant Vector -->
+          <div class="flow-card">
+            <div class="flow-card-header">
+              <span class="flow-icon">🎯</span>
+              <span class="flow-card-title">Hybrid Qdrant RAG</span>
+            </div>
+            <div class="flow-card-desc">384D Dense Neural Space + BM25 Lexical Re-ranker</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 5: HARDWARE ROUTER -->
+      <div class="router-container">
+        <div class="router-header">
+          <div class="router-title">
+            <span>🔀</span> STAGE 5: HARDWARE-AWARE MODEL ROUTER & DYNAMIC SILICON PROFILER
+          </div>
+          <span class="budget-badge">Memory Budget Ceiling: ≤ 75% Host Limits</span>
+        </div>
+        <div class="profiler-strip">
+          <span>🔍</span> <b>HardwareDetector Scan:</b> Profiles Host RAM, Available VRAM (CUDA / Metal), CPU Cores & SIMD Vector Extensions
+        </div>
+
+        <div class="tiers-grid">
+          <div class="tier-card tier-1">
+            <div class="tier-name">Tier 1: Edge Industrial PC</div>
+            <div class="tier-spec">Free RAM ≤ 8GB (Fanless / No GPU)</div>
+            <div class="tier-model">✓ Qwen-0.5B / Phi-3.5-mini [~0.7-2.2GB]</div>
+          </div>
+          <div class="tier-card tier-2">
+            <div class="tier-name">Tier 2: Engineering Workstation</div>
+            <div class="tier-spec">Free RAM ≥ 16GB (Multi-Core CPU)</div>
+            <div class="tier-model">✓ SmolLM2-1.7B / Llama-3.2 [~1.6-2.8GB]</div>
+          </div>
+          <div class="tier-card tier-3">
+            <div class="tier-name">Tier 3: GPU Server Node</div>
+            <div class="tier-spec">Dedicated VRAM ≥ 8GB (CUDA/Metal)</div>
+            <div class="tier-model">✓ Mistral-7B / Qwen-14B (Full CUDA Offload)</div>
+          </div>
+        </div>
+
+        <div class="lifecycle-bar">
+          <div class="lifecycle-step"><span>🔍</span> 1. RAM Cache Hit Check</div>
+          <div class="lifecycle-arrow">➔</div>
+          <div class="lifecycle-step"><span>♻️</span> 2. gc.collect() Memory Eviction</div>
+          <div class="lifecycle-arrow">➔</div>
+          <div class="lifecycle-step"><span>⚡</span> 3. llama.cpp Dynamic Hot-Load</div>
+          <div class="lifecycle-arrow">➔</div>
+          <div class="lifecycle-step"><span>🔒</span> 4. Single-Model In-RAM Residency</div>
+        </div>
+      </div>
+
+      <!-- CORE TECH STACK -->
+      <div class="tech-container">
+        <div class="tech-title">Core Air-Gapped Sovereign Technology Stack</div>
+        <div class="tech-grid">
+          <div class="tech-badge">
+            <span class="tech-badge-icon">🛡️</span>
+            <div>
+              <div class="tech-badge-name">Model Gateway</div>
+              <div class="tech-badge-sub">PromptGuard & RBAC</div>
+            </div>
+          </div>
+          <div class="tech-badge">
+            <span class="tech-badge-icon">🔀</span>
+            <div>
+              <div class="tech-badge-name">Model Router</div>
+              <div class="tech-badge-sub">Dynamic Silicon Profiler</div>
+            </div>
+          </div>
+          <div class="tech-badge">
+            <span class="tech-badge-icon">🧠</span>
+            <div>
+              <div class="tech-badge-name">LangGraph Brain</div>
+              <div class="tech-badge-sub">6-Node State Machine</div>
+            </div>
+          </div>
+          <div class="tech-badge">
+            <span class="tech-badge-icon">🦙</span>
+            <div>
+              <div class="tech-badge-name">llama.cpp GGUF</div>
+              <div class="tech-badge-sub">Quantized Local LLMs</div>
+            </div>
+          </div>
+          <div class="tech-badge">
+            <span class="tech-badge-icon">🎯</span>
+            <div>
+              <div class="tech-badge-name">Qdrant Vector</div>
+              <div class="tech-badge-sub">Embedded 384D Space</div>
+            </div>
+          </div>
+          <div class="tech-badge">
+            <span class="tech-badge-icon">🕸️</span>
+            <div>
+              <div class="tech-badge-name">NetworkX Graph</div>
+              <div class="tech-badge-sub">Causal Multi-hop RAG</div>
+            </div>
+          </div>
+          <div class="tech-badge">
+            <span class="tech-badge-icon">🌐</span>
+            <div>
+              <div class="tech-badge-name">Three.js WebGL</div>
+              <div class="tech-badge-sub">3D Digital Twin Canvas</div>
+            </div>
+          </div>
+          <div class="tech-badge">
+            <span class="tech-badge-icon">🔒</span>
+            <div>
+              <div class="tech-badge-name">HMAC SHA-256</div>
+              <div class="tech-badge-sub">Chained Audit Ledger</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATUS PILL -->
+      <div class="status-pill status-diagnostic">
+        <span>🌿</span> Diagnostic & Cognitive Intelligence Rail Completed
+      </div>
+    </div>
+
+
+    <!-- ==================== MIDDLE COLUMN: ONLINE TELEMETRY ==================== -->
+    <div class="rail rail-online">
+      <div class="rail-header header-online">
+        📡 Online Mode (Stage 4 Telemetry Stream)
+      </div>
+
+      <div class="vertical-cards-wrapper">
+        <div class="vertical-card">
+          <div class="v-icon">🔌</div>
+          <div class="v-content">
+            <div class="v-title">Sensor Harvester</div>
+            <div class="v-sub">Modbus / OPC-UA / MQTT Multi-Sensor Ingestion</div>
+          </div>
+        </div>
+        <div class="vertical-card">
+          <div class="v-icon">⚡</div>
+          <div class="v-content">
+            <div class="v-title">WebSocket Feed (1.5s)</div>
+            <div class="v-sub">Sub-Second Real-Time Telemetry Streaming</div>
+          </div>
+        </div>
+        <div class="vertical-card">
+          <div class="v-icon">📈</div>
+          <div class="v-content">
+            <div class="v-title">Z-Score Spike Filter</div>
+            <div class="v-sub">Dynamic Noise & Outlier Rejection (μ ± 3σ)</div>
+          </div>
+        </div>
+        <div class="vertical-card">
+          <div class="v-icon">🔗</div>
+          <div class="v-content">
+            <div class="v-title">Sensor Correlation</div>
+            <div class="v-sub">Pearson Matrix: Temp-Vibration Cross-Coupling</div>
+          </div>
+        </div>
+        <div class="vertical-card">
+          <div class="v-icon">🧊</div>
+          <div class="v-content">
+            <div class="v-title">Three.js 3D Twin</div>
+            <div class="v-sub">Spatial Dynamic Mesh Thermal & Vibration Heatmaps</div>
+          </div>
+        </div>
+        <div class="vertical-card">
+          <div class="v-icon">💚</div>
+          <div class="v-content">
+            <div class="v-title">Health Index Score</div>
+            <div class="v-sub">Composite Degradation Index: 98.4% Normal</div>
+          </div>
+        </div>
+        <div class="vertical-card">
+          <div class="v-icon">🖥️</div>
+          <div class="v-content">
+            <div class="v-title">Live Operator Cockpit</div>
+            <div class="v-sub">Real-Time Dials, Trendlines & Historical DB</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-pill status-online">
+        <span>🌿</span> Real-Time Telemetry Stream Active
+      </div>
+    </div>
+
+
+    <!-- ==================== RIGHT COLUMN: GOVERNED SAFETY ==================== -->
+    <div class="rail rail-safety">
+      <div class="rail-header header-safety">
+        🚨 Governed Safety (Stages 4, 6, 7 Safety Rails)
+      </div>
+
+      <div class="vertical-cards-wrapper">
+        <div class="vertical-card">
+          <div class="v-icon">🛑</div>
+          <div class="v-content">
+            <div class="v-title">Stage 6: Actuator Intercept</div>
+            <div class="v-sub">Setpoint / Speed / Breaker / Valve Trigger Gate</div>
+          </div>
+        </div>
+        <div class="vertical-card">
+          <div class="v-icon">⚖️</div>
+          <div class="v-content">
+            <div class="v-title">Deterministic Interlock</div>
+            <div class="v-sub">Zero-LLM SIL-2 Mathematical Boundary Verification</div>
+          </div>
+        </div>
+        <div class="vertical-card">
+          <div class="v-icon">🔴</div>
+          <div class="v-content">
+            <div class="v-title">Automated E-Stop</div>
+            <div class="v-sub">Instant Hardware Trip on Breach (Temp &gt;85°C, Vib &gt;4.5)</div>
+          </div>
+        </div>
+        <div class="vertical-card">
+          <div class="v-icon">👥</div>
+          <div class="v-content">
+            <div class="v-title">Two-Person Rule Gate</div>
+            <div class="v-sub">Controlled Actions Locked in PENDING State</div>
+          </div>
+        </div>
+        <div class="vertical-card">
+          <div class="v-icon">🔑</div>
+          <div class="v-content">
+            <div class="v-title">Offline 2FA Signoff</div>
+            <div class="v-sub">Safety Officer Cryptographic TOTP Signoff Required</div>
+          </div>
+        </div>
+        <div class="vertical-card">
+          <div class="v-icon">🛡️</div>
+          <div class="v-content">
+            <div class="v-title">Air-Gap Monitor</div>
+            <div class="v-sub">Zero Outbound Egress Enforcement & NIC Isolation</div>
+          </div>
+        </div>
+        <div class="vertical-card">
+          <div class="v-icon">🔒</div>
+          <div class="v-content">
+            <div class="v-title">Stage 7: Chained HMAC Ledger</div>
+            <div class="v-sub">SHA-256 Tamper-Proof Cryptographic Audit Trail</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-pill status-safety">
+        <span>🌿</span> Governed Safety Rail Verified
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SLIDE FOOTER -->
+  <div class="slide-footer">
+    <div>@ Sovereign AI Workbench - Dual-Rail Air-Gapped Industrial Intelligence Architecture</div>
+    <div class="slide-num">3</div>
+  </div>
+
+</body>
+</html>

@@ -232,6 +232,7 @@ class SovereignKnowledgeGraph:
     @classmethod
     def find_subgraph_for_entity(cls, entity_id: str, max_depth: int = 2) -> Dict[str, Any]:
         """Traverses connected entities and edges up to max_depth hops."""
+        cls._ensure_loaded()
         connected_node_ids = {entity_id}
         matched_edges = []
 

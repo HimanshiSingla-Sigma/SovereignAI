@@ -27,6 +27,20 @@ export interface EmergencyContext {
   since: number
 }
 
+export interface WhatIfOverride {
+  machineId: string
+  active: boolean
+  status: string
+  anomalyScore: number
+  temperature: number
+  vibration: number
+  current?: number
+  gas?: number
+  safetyFactor?: number
+  peakStress?: number
+  reason?: string
+}
+
 interface AlertState {
   live: Record<string, MachineLive>
   history: Record<string, TelemetryPoint[]>
@@ -35,11 +49,16 @@ interface AlertState {
   emergency: EmergencyContext | null
   /** Set when the operator dismisses the war-room banner for the current event. */
   acknowledgedFor: string | null
+  whatIfOverrides: Record<string, WhatIfOverride>
 
   ingest: (machineId: string, point: TelemetryPoint) => void
   seedHistory: (machineId: string, points: TelemetryPoint[]) => void
   setSystemState: (state: SafetyState) => void
   setRules: (rules: SafetyRule[]) => void
+  setWhatIfOverride: (override: WhatIfOverride | null, clearMachineId?: string) => void
+  clearWhatIfOverride: (machineId: string) => void
+  executeShutdown: (machineId: string) => void
+  clearEmergency: () => void
   acknowledge: () => void
   reset: () => void
 }
@@ -77,17 +96,26 @@ export const useAlertStore = create<AlertState>((set, get) => ({
   rules: [],
   emergency: null,
   acknowledgedFor: null,
+  whatIfOverrides: {},
 
   ingest(machineId, point) {
     const prev = get()
     const nextHistory = [...(prev.history[machineId] ?? []), point].slice(-HISTORY_LIMIT)
 
+    const override = prev.whatIfOverrides[machineId]
+    if (override && override.active) {
+      // If a what-if simulation override is currently active for this machine,
+      // preserve the overridden status, anomaly and temperature in live state.
+      set({
+        history: { ...prev.history, [machineId]: nextHistory },
+      })
+      return
+    }
+
     const detected = emergencyFromPoint(machineId, point)
     let emergency = prev.emergency
 
     if (detected) {
-      // Keep the original `since` while the same machine stays in emergency so
-      // the war-room countdown does not restart on every frame.
       emergency =
         prev.emergency && prev.emergency.machineId === machineId && prev.emergency.parameter === detected.parameter
           ? { ...prev.emergency, value: detected.value, reason: detected.reason }
@@ -116,6 +144,125 @@ export const useAlertStore = create<AlertState>((set, get) => ({
     })
   },
 
+  setWhatIfOverride(override, clearMachineId) {
+    const prev = get()
+    const targetId = override?.machineId ?? clearMachineId
+    if (!targetId) return
+
+    if (!override || !override.active) {
+      // Clear override for this machine
+      const nextOverrides = { ...prev.whatIfOverrides }
+      delete nextOverrides[targetId]
+
+      // Restore nominal status
+      const existing = prev.live[targetId]
+      const restoredLive: MachineLive = existing
+        ? {
+            ...existing,
+            status: 'OPERATIONAL',
+            anomalyScore: 8.0,
+            temperature: 42.0,
+            vibration: 1.2,
+            at: Date.now(),
+          }
+        : {
+            machineId: targetId,
+            temperature: 42.0,
+            vibration: 1.2,
+            current: 24.0,
+            gas: 5.0,
+            anomalyScore: 8.0,
+            status: 'OPERATIONAL',
+            at: Date.now(),
+          }
+
+      const emergency = prev.emergency?.machineId === targetId ? null : prev.emergency
+
+      set({
+        whatIfOverrides: nextOverrides,
+        live: { ...prev.live, [targetId]: restoredLive },
+        emergency,
+      })
+      return
+    }
+
+    // Set active override
+    const nextOverrides = { ...prev.whatIfOverrides, [targetId]: override }
+    const updatedLive: MachineLive = {
+      machineId: targetId,
+      temperature: override.temperature,
+      vibration: override.vibration,
+      current: override.current ?? 48.0,
+      gas: override.gas ?? 6.0,
+      anomalyScore: override.anomalyScore,
+      status: override.status,
+      at: Date.now(),
+    }
+
+    let emergency = prev.emergency
+    if (override.status === 'CRITICAL' || override.temperature > EMERGENCY_TEMP_C) {
+      emergency = {
+        machineId: targetId,
+        parameter: 'temperature',
+        value: override.temperature,
+        threshold: EMERGENCY_TEMP_C,
+        reason: override.reason ?? `${targetId} FEA stress threshold breach: critical structural overload`,
+        since: Date.now(),
+      }
+    } else if (prev.emergency?.machineId === targetId && override.status !== 'CRITICAL') {
+      emergency = null
+    }
+
+    set({
+      whatIfOverrides: nextOverrides,
+      live: { ...prev.live, [targetId]: updatedLive },
+      emergency,
+    })
+  },
+
+  clearWhatIfOverride(machineId) {
+    get().setWhatIfOverride(null, machineId)
+  },
+
+  executeShutdown(machineId) {
+    const prev = get()
+    // 1. Delete what-if override for this machine
+    const nextOverrides = { ...prev.whatIfOverrides }
+    delete nextOverrides[machineId]
+
+    // 2. Transition machine to SHUTDOWN status with 0 anomaly, cold temp, 0 vibration
+    const existing = prev.live[machineId]
+    const shutdownLive: MachineLive = {
+      ...(existing || { machineId, at: Date.now() }),
+      machineId,
+      status: 'SHUTDOWN',
+      temperature: 24.0,
+      vibration: 0.0,
+      current: 0.0,
+      gas: 2.0,
+      anomalyScore: 0.0,
+      at: Date.now(),
+    }
+
+    // 3. Clear emergency if it belongs to this machine
+    const emergency = prev.emergency?.machineId === machineId ? null : prev.emergency
+
+    set({
+      whatIfOverrides: nextOverrides,
+      live: {
+        ...prev.live,
+        [machineId]: shutdownLive,
+      },
+      emergency,
+      acknowledgedFor: null,
+      systemState: emergency ? 'EMERGENCY' : 'NORMAL',
+    })
+  },
+
+  clearEmergency() {
+    set({ emergency: null, acknowledgedFor: null })
+  },
+
   seedHistory(machineId, points) {
     set((prev) => ({ history: { ...prev.history, [machineId]: points.slice(-HISTORY_LIMIT) } }))
   },
@@ -125,8 +272,6 @@ export const useAlertStore = create<AlertState>((set, get) => ({
     let emergency = prev.emergency
 
     if (state === 'EMERGENCY' && !emergency) {
-      // The safety engine tripped without a local telemetry breach — surface the
-      // worst machine we currently observe as the subject of the war room.
       const worst = Object.values(prev.live).sort((a, b) => b.anomalyScore - a.anomalyScore)[0]
       emergency = {
         machineId: worst?.machineId ?? 'PLANT',
@@ -157,7 +302,7 @@ export const useAlertStore = create<AlertState>((set, get) => ({
   },
 
   reset() {
-    set({ live: {}, history: {}, systemState: 'NORMAL', emergency: null, acknowledgedFor: null })
+    set({ live: {}, history: {}, systemState: 'NORMAL', emergency: null, acknowledgedFor: null, whatIfOverrides: {} })
   },
 }))
 

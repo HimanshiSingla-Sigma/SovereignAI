@@ -1,0 +1,353 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" style="background:#ffffff; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Markers -->
+    <marker id="arrowOrange" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <polygon points="0 0, 6 3, 0 6" fill="#ea580c" />
+    </marker>
+    <marker id="arrowBlue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <polygon points="0 0, 6 3, 0 6" fill="#1d4ed8" />
+    </marker>
+    <marker id="arrowGreen" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <polygon points="0 0, 6 3, 0 6" fill="#15803d" />
+    </marker>
+    <filter id="boxShadow" x="-2%" y="-2%" width="104%" height="104%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="1600" height="900" fill="#ffffff" />
+
+  <!-- HEADER -->
+  <g transform="translate(28, 20)">
+    <!-- Left Brand -->
+    <text x="0" y="24" font-size="26" font-weight="900" fill="#003366">Sovereign AI</text>
+    <text x="0" y="42" font-size="14" font-weight="700" fill="#0284c7">Workbench</text>
+
+    <!-- Center Title -->
+    <text x="772" y="32" font-size="38" font-weight="950" fill="#0f172a" text-anchor="middle" letter-spacing="2" font-family="'Arial Black', Impact, sans-serif">TECHNICAL APPROACH</text>
+
+    <!-- Right SIH Badge -->
+    <g transform="translate(1420, 0)">
+      <text x="50" y="14" font-size="12" font-weight="900" fill="#003366" text-anchor="end">SMART INDIA</text>
+      <text x="50" y="28" font-size="12" font-weight="900" fill="#003366" text-anchor="end">HACKATHON</text>
+      <text x="50" y="44" font-size="14" font-weight="900" fill="#ea580c" text-anchor="end">2026</text>
+      <circle cx="80" cy="24" r="22" fill="#ffffff" stroke="#ea580c" stroke-width="2" stroke-dasharray="4,3" />
+      <circle cx="80" cy="24" r="14" fill="none" stroke="#ea580c" stroke-width="2" />
+      <path d="M 80 10 L 80 38 M 66 24 L 94 24" stroke="#ea580c" stroke-width="2" />
+    </g>
+  </g>
+
+  <!-- TOP DECISION BAR -->
+  <g transform="translate(28, 80)">
+    <!-- Start Button -->
+    <g transform="translate(540, 4)">
+      <path d="M 0 0 L 110 0 L 126 18 L 110 36 L 0 36 Z" fill="#475569" />
+      <text x="14" y="23" font-size="13" font-weight="800" fill="#ffffff">🚀 Start Here</text>
+    </g>
+
+    <!-- Decision Box -->
+    <g transform="translate(675, 4)">
+      <rect x="0" y="0" width="330" height="36" rx="8" fill="#475569" filter="url(#boxShadow)" />
+      <text x="165" y="23" font-size="14.5" font-weight="800" fill="#ffffff" text-anchor="middle">Industrial Event OR Operational Mode?</text>
+    </g>
+
+    <!-- Branch Lines -->
+    <!-- Left Orange Branch -->
+    <path d="M 540 22 L 380 22 L 380 78" fill="none" stroke="#ea580c" stroke-width="3.5" marker-end="url(#arrowOrange)" />
+    <rect x="230" y="10" width="140" height="24" rx="4" fill="#ffffff" stroke="#ea580c" stroke-width="1.2" />
+    <text x="300" y="26" font-size="11" font-weight="800" fill="#ea580c" text-anchor="middle">Anomaly / Fault Query</text>
+
+    <!-- Middle Blue Branch -->
+    <path d="M 975 40 L 975 78" fill="none" stroke="#1d4ed8" stroke-width="3.5" marker-end="url(#arrowBlue)" />
+    <rect x="985" y="48" width="105" height="22" rx="4" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.2" />
+    <text x="1037" y="63" font-size="10.5" font-weight="800" fill="#1d4ed8" text-anchor="middle">Live Telemetry</text>
+
+    <!-- Right Green Branch -->
+    <path d="M 1005 22 L 1330 22 L 1330 78" fill="none" stroke="#15803d" stroke-width="3.5" marker-end="url(#arrowGreen)" />
+    <rect x="1145" y="10" width="155" height="24" rx="4" fill="#ffffff" stroke="#15803d" stroke-width="1.2" />
+    <text x="1222" y="26" font-size="11" font-weight="800" fill="#15803d" text-anchor="middle">Actuator / E-Stop Override</text>
+  </g>
+
+  <!-- 3 MAIN CONTAINERS -->
+  <!-- COLUMN 1: LEFT ORANGE BOX -->
+  <g transform="translate(28, 165)">
+    <!-- Container outline -->
+    <rect x="0" y="0" width="790" height="695" rx="10" fill="#fbfcfe" stroke="#ea580c" stroke-width="2" stroke-dasharray="6,6" />
+
+    <!-- Mode Header Pill -->
+    <g transform="translate(235, 12)">
+      <rect x="0" y="0" width="320" height="32" rx="16" fill="#ea580c" filter="url(#boxShadow)" />
+      <text x="160" y="21" font-size="13.5" font-weight="800" fill="#ffffff" text-anchor="middle">⚙️ Diagnostic AI Mode (Air-Gapped Brain)</text>
+    </g>
+
+    <!-- Workflow Row 1 -->
+    <g transform="translate(14, 58)">
+      <!-- Step 1 -->
+      <rect x="0" y="0" width="170" height="52" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.5" />
+      <text x="10" y="22" font-size="12" font-weight="800" fill="#7c2d12">🛡️ Ingress Sanitize</text>
+      <text x="10" y="40" font-size="9.5" font-weight="600" fill="#475569">PromptGuard &amp; 5 Threat Scan</text>
+
+      <path d="M 174 26 L 192 26" stroke="#ea580c" stroke-width="3" marker-end="url(#arrowOrange)" />
+
+      <!-- Step 2 -->
+      <rect x="198" y="0" width="170" height="52" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.5" />
+      <text x="208" y="22" font-size="12" font-weight="800" fill="#7c2d12">📊 Hardware Profiler</text>
+      <text x="208" y="40" font-size="9.5" font-weight="600" fill="#475569">RAM/VRAM Budget (psutil)</text>
+
+      <path d="M 372 26 L 390 26" stroke="#ea580c" stroke-width="3" marker-end="url(#arrowOrange)" />
+
+      <!-- Step 3 -->
+      <rect x="396" y="0" width="170" height="52" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.5" />
+      <text x="406" y="22" font-size="12" font-weight="800" fill="#7c2d12">🔀 Model Router</text>
+      <text x="406" y="40" font-size="9.5" font-weight="600" fill="#475569">Phi-3.5 3B vs Mistral 7B</text>
+
+      <path d="M 570 26 L 588 26" stroke="#ea580c" stroke-width="3" marker-end="url(#arrowOrange)" />
+
+      <!-- Step 4 -->
+      <rect x="594" y="0" width="168" height="52" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.5" />
+      <text x="604" y="22" font-size="12" font-weight="800" fill="#7c2d12">🧠 LangGraph 6-Node</text>
+      <text x="604" y="40" font-size="9.5" font-weight="600" fill="#475569">Plan ➔ Route ➔ Evaluate</text>
+    </g>
+
+    <!-- Connector Down -->
+    <path d="M 692 114 L 692 126" stroke="#ea580c" stroke-width="3" marker-end="url(#arrowOrange)" />
+
+    <!-- Workflow Row 2 (Right to Left) -->
+    <g transform="translate(14, 132)">
+      <!-- Step 8 (SOP Actions - Leftmost in Row 2) -->
+      <rect x="0" y="0" width="170" height="52" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.5" />
+      <text x="10" y="22" font-size="12" font-weight="800" fill="#7c2d12">📋 SOP Action Steps</text>
+      <text x="10" y="40" font-size="9.5" font-weight="600" fill="#475569">Recommended Safe Setpoints</text>
+
+      <path d="M 194 26 L 176 26" stroke="#ea580c" stroke-width="3" marker-end="url(#arrowOrange)" />
+
+      <!-- Step 7 -->
+      <rect x="198" y="0" width="170" height="52" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.5" />
+      <text x="208" y="22" font-size="12" font-weight="800" fill="#7c2d12">📑 Manual Grounding</text>
+      <text x="208" y="40" font-size="9.5" font-weight="600" fill="#475569">100% Page Citations</text>
+
+      <path d="M 392 26 L 374 26" stroke="#ea580c" stroke-width="3" marker-end="url(#arrowOrange)" />
+
+      <!-- Step 6 -->
+      <rect x="396" y="0" width="170" height="52" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.5" />
+      <text x="406" y="22" font-size="12" font-weight="800" fill="#7c2d12">🕸️ Causal GraphRAG</text>
+      <text x="406" y="40" font-size="9.5" font-weight="600" fill="#475569">Failure Mode Chains</text>
+
+      <path d="M 590 26 L 572 26" stroke="#ea580c" stroke-width="3" marker-end="url(#arrowOrange)" />
+
+      <!-- Step 5 (Vector Qdrant - Rightmost in Row 2) -->
+      <rect x="594" y="0" width="168" height="52" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.5" />
+      <text x="604" y="22" font-size="12" font-weight="800" fill="#7c2d12">🔍 Vector Qdrant</text>
+      <text x="604" y="40" font-size="9.5" font-weight="600" fill="#475569">384D all-MiniLM-L6-v2</text>
+    </g>
+
+    <!-- TECH STACK CONTAINER -->
+    <g transform="translate(14, 200)">
+      <rect x="0" y="0" width="762" height="430" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" />
+      <rect x="14" y="-12" width="100" height="22" rx="4" fill="#0f172a" />
+      <text x="64" y="3" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">TECH STACK</text>
+
+      <!-- 12 Stack Items Grid -->
+      <g transform="translate(12, 20)">
+        <!-- Row 1 -->
+        <g transform="translate(0, 0)">
+          <rect x="0" y="0" width="172" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+          <text x="10" y="20" font-size="11" font-weight="800" fill="#0f172a">🐍 Python 3.11</text>
+          <text x="10" y="34" font-size="9" font-weight="600" fill="#64748b">Backend Core Engine</text>
+        </g>
+        <g transform="translate(186, 0)">
+          <rect x="0" y="0" width="172" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+          <text x="10" y="20" font-size="11" font-weight="800" fill="#0f172a">⚡ FastAPI + Async</text>
+          <text x="10" y="34" font-size="9" font-weight="600" fill="#64748b">REST &amp; WebSockets</text>
+        </g>
+        <g transform="translate(372, 0)">
+          <rect x="0" y="0" width="172" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+          <text x="10" y="20" font-size="11" font-weight="800" fill="#0f172a">⚛️ React 18 + Vite</text>
+          <text x="10" y="34" font-size="9" font-weight="600" fill="#64748b">Interactive Web UI</text>
+        </g>
+        <g transform="translate(558, 0)">
+          <rect x="0" y="0" width="172" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+          <text x="10" y="20" font-size="11" font-weight="800" fill="#0f172a">🧊 Three.js WebGL</text>
+          <text x="10" y="34" font-size="9" font-weight="600" fill="#64748b">3D Spatial Digital Twin</text>
+        </g>
+
+        <!-- Row 2 -->
+        <g transform="translate(0, 52)">
+          <rect x="0" y="0" width="172" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+          <text x="10" y="20" font-size="11" font-weight="800" fill="#0f172a">🧠 LangGraph</text>
+          <text x="10" y="34" font-size="9" font-weight="600" fill="#64748b">6-Node State Machine</text>
+        </g>
+        <g transform="translate(186, 52)">
+          <rect x="0" y="0" width="172" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+          <text x="10" y="20" font-size="11" font-weight="800" fill="#0f172a">🦙 llama.cpp GGUF</text>
+          <text x="10" y="34" font-size="9" font-weight="600" fill="#64748b">Quantized Local LLM</text>
+        </g>
+        <g transform="translate(372, 52)">
+          <rect x="0" y="0" width="172" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+          <text x="10" y="20" font-size="11" font-weight="800" fill="#0f172a">🎯 Qdrant Vector</text>
+          <text x="10" y="34" font-size="9" font-weight="600" fill="#64748b">Embedded Dense RAG</text>
+        </g>
+        <g transform="translate(558, 52)">
+          <rect x="0" y="0" width="172" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+          <text x="10" y="20" font-size="11" font-weight="800" fill="#0f172a">🕸️ NetworkX Graph</text>
+          <text x="10" y="34" font-size="9" font-weight="600" fill="#64748b">Causal Multi-hop RAG</text>
+        </g>
+
+        <!-- Row 3 -->
+        <g transform="translate(0, 104)">
+          <rect x="0" y="0" width="172" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+          <text x="10" y="20" font-size="11" font-weight="800" fill="#0f172a">🔥 PyTorch / ONNX</text>
+          <text x="10" y="34" font-size="9" font-weight="600" fill="#64748b">Edge Embeddings</text>
+        </g>
+        <g transform="translate(186, 104)">
+          <rect x="0" y="0" width="172" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+          <text x="10" y="20" font-size="11" font-weight="800" fill="#0f172a">🐳 Docker / Linux</text>
+          <text x="10" y="34" font-size="9" font-weight="600" fill="#64748b">Air-Gapped Container</text>
+        </g>
+        <g transform="translate(372, 104)">
+          <rect x="0" y="0" width="172" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+          <text x="10" y="20" font-size="11" font-weight="800" fill="#0f172a">🗄️ SQLite / Postgres</text>
+          <text x="10" y="34" font-size="9" font-weight="600" fill="#64748b">Encrypted Local DB</text>
+        </g>
+        <g transform="translate(558, 104)">
+          <rect x="0" y="0" width="172" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+          <text x="10" y="20" font-size="11" font-weight="800" fill="#0f172a">🔒 HMAC SHA-256</text>
+          <text x="10" y="34" font-size="9" font-weight="600" fill="#64748b">Chained Audit Ledger</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Completed Pill -->
+    <g transform="translate(235, 648)">
+      <rect x="0" y="0" width="320" height="34" rx="17" fill="#ea580c" filter="url(#boxShadow)" />
+      <text x="160" y="22" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">🌿 Diagnostic Mode Completed</text>
+    </g>
+  </g>
+
+  <!-- COLUMN 2: MIDDLE BLUE BOX -->
+  <g transform="translate(834, 165)">
+    <rect x="0" y="0" width="345" height="695" rx="10" fill="#fbfcfe" stroke="#2563eb" stroke-width="2" stroke-dasharray="6,6" />
+
+    <!-- Mode Header Pill -->
+    <g transform="translate(82, 12)">
+      <rect x="0" y="0" width="180" height="32" rx="16" fill="#1d4ed8" filter="url(#boxShadow)" />
+      <text x="90" y="21" font-size="13.5" font-weight="800" fill="#ffffff" text-anchor="middle">📡 Online Mode</text>
+    </g>
+
+    <!-- Vertical Flow -->
+    <g transform="translate(18, 58)">
+      <!-- Step 1 -->
+      <rect x="0" y="0" width="308" height="52" rx="6" fill="#ffffff" stroke="#2563eb" stroke-width="1.5" />
+      <text x="14" y="22" font-size="12" font-weight="800" fill="#1e3a8a">🔌 Sensor Ingestion</text>
+      <text x="14" y="40" font-size="9.5" font-weight="600" fill="#475569">Modbus / OPC-UA / MQTT Adapters</text>
+
+      <path d="M 154 54 L 154 68" stroke="#1d4ed8" stroke-width="3" marker-end="url(#arrowBlue)" />
+
+      <!-- Step 2 -->
+      <rect x="0" y="72" width="308" height="52" rx="6" fill="#ffffff" stroke="#2563eb" stroke-width="1.5" />
+      <text x="14" y="94" font-size="12" font-weight="800" fill="#1e3a8a">⚡ WebSocket Stream</text>
+      <text x="14" y="112" font-size="9.5" font-weight="600" fill="#475569">1.5s High-Frequency Feed</text>
+
+      <path d="M 154 126 L 154 140" stroke="#1d4ed8" stroke-width="3" marker-end="url(#arrowBlue)" />
+
+      <!-- Step 3 -->
+      <rect x="0" y="144" width="308" height="52" rx="6" fill="#ffffff" stroke="#2563eb" stroke-width="1.5" />
+      <text x="14" y="166" font-size="12" font-weight="800" fill="#1e3a8a">📈 Z-Score Spike Filter</text>
+      <text x="14" y="184" font-size="9.5" font-weight="600" fill="#475569">Noise &amp; Outlier Rejection</text>
+
+      <path d="M 154 198 L 154 212" stroke="#1d4ed8" stroke-width="3" marker-end="url(#arrowBlue)" />
+
+      <!-- Step 4 -->
+      <rect x="0" y="216" width="308" height="52" rx="6" fill="#ffffff" stroke="#2563eb" stroke-width="1.5" />
+      <text x="14" y="238" font-size="12" font-weight="800" fill="#1e3a8a">🧊 3D Digital Twin</text>
+      <text x="14" y="256" font-size="9.5" font-weight="600" fill="#475569">Three.js Mesh Heatmaps</text>
+
+      <path d="M 154 270 L 154 284" stroke="#1d4ed8" stroke-width="3" marker-end="url(#arrowBlue)" />
+
+      <!-- Step 5 -->
+      <rect x="0" y="288" width="308" height="52" rx="6" fill="#ffffff" stroke="#2563eb" stroke-width="1.5" />
+      <text x="14" y="310" font-size="12" font-weight="800" fill="#1e3a8a">💚 Health Index Score</text>
+      <text x="14" y="328" font-size="9.5" font-weight="600" fill="#475569">Live Degradation (98.4%)</text>
+
+      <path d="M 154 342 L 154 356" stroke="#1d4ed8" stroke-width="3" marker-end="url(#arrowBlue)" />
+
+      <!-- Step 6 -->
+      <rect x="0" y="360" width="308" height="52" rx="6" fill="#ffffff" stroke="#2563eb" stroke-width="1.5" />
+      <text x="14" y="382" font-size="12" font-weight="800" fill="#1e3a8a">🖥️ Live UI Gauges</text>
+      <text x="14" y="400" font-size="9.5" font-weight="600" fill="#475569">RPM, Temp, Vib Time-Series</text>
+    </g>
+
+    <!-- Completed Pill -->
+    <g transform="translate(38, 648)">
+      <rect x="0" y="0" width="270" height="34" rx="17" fill="#1d4ed8" filter="url(#boxShadow)" />
+      <text x="135" y="22" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">🌿 Online Mode Completed</text>
+    </g>
+  </g>
+
+  <!-- COLUMN 3: RIGHT GREEN BOX -->
+  <g transform="translate(1195, 165)">
+    <rect x="0" y="0" width="375" height="695" rx="10" fill="#fbfcfe" stroke="#16a34a" stroke-width="2" stroke-dasharray="6,6" />
+
+    <!-- Mode Header Pill -->
+    <g transform="translate(87, 12)">
+      <rect x="0" y="0" width="200" height="32" rx="16" fill="#15803d" filter="url(#boxShadow)" />
+      <text x="100" y="21" font-size="13.5" font-weight="800" fill="#ffffff" text-anchor="middle">★ Governed Safety</text>
+    </g>
+
+    <!-- Vertical Flow -->
+    <g transform="translate(18, 58)">
+      <!-- Step 1 -->
+      <rect x="0" y="0" width="338" height="52" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" />
+      <text x="14" y="22" font-size="12" font-weight="800" fill="#14532d">🕹️ Actuator Request</text>
+      <text x="14" y="40" font-size="9.5" font-weight="600" fill="#475569">Setpoints / Speed / Valve Trigger</text>
+
+      <path d="M 169 54 L 169 68" stroke="#15803d" stroke-width="3" marker-end="url(#arrowGreen)" />
+
+      <!-- Step 2 -->
+      <rect x="0" y="72" width="338" height="52" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" />
+      <text x="14" y="94" font-size="12" font-weight="800" fill="#14532d">⚖️ Deterministic Interlock</text>
+      <text x="14" y="112" font-size="9.5" font-weight="600" fill="#475569">Zero-LLM Mathematical SIL-2 Rules</text>
+
+      <path d="M 169 126 L 169 140" stroke="#15803d" stroke-width="3" marker-end="url(#arrowGreen)" />
+
+      <!-- Step 3 -->
+      <rect x="0" y="144" width="338" height="52" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" />
+      <text x="14" y="166" font-size="12" font-weight="800" fill="#14532d">🛑 Automated E-Stop</text>
+      <text x="14" y="184" font-size="9.5" font-weight="600" fill="#475569">Instant Trip on Boundary Excursion</text>
+
+      <path d="M 169 198 L 169 212" stroke="#15803d" stroke-width="3" marker-end="url(#arrowGreen)" />
+
+      <!-- Step 4 -->
+      <rect x="0" y="216" width="338" height="52" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" />
+      <text x="14" y="238" font-size="12" font-weight="800" fill="#14532d">👥 Two-Person Rule Gate</text>
+      <text x="14" y="256" font-size="9.5" font-weight="600" fill="#475569">Pending Safety Officer Authorization</text>
+
+      <path d="M 169 270 L 169 284" stroke="#15803d" stroke-width="3" marker-end="url(#arrowGreen)" />
+
+      <!-- Step 5 -->
+      <rect x="0" y="288" width="338" height="52" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" />
+      <text x="14" y="310" font-size="12" font-weight="800" fill="#14532d">🔑 Offline 2FA Signoff</text>
+      <text x="14" y="328" font-size="9.5" font-weight="600" fill="#475569">Safety Officer TOTP Signature</text>
+
+      <path d="M 169 342 L 169 356" stroke="#15803d" stroke-width="3" marker-end="url(#arrowGreen)" />
+
+      <!-- Step 6 -->
+      <rect x="0" y="360" width="338" height="52" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" />
+      <text x="14" y="382" font-size="12" font-weight="800" fill="#14532d">🔒 Chained HMAC Ledger</text>
+      <text x="14" y="400" font-size="9.5" font-weight="600" fill="#475569">SHA-256 Tamper-Proof Audit Block</text>
+    </g>
+
+    <!-- Completed Pill -->
+    <g transform="translate(52, 648)">
+      <rect x="0" y="0" width="270" height="34" rx="17" fill="#15803d" filter="url(#boxShadow)" />
+      <text x="135" y="22" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">🌿 Safety Mode Completed</text>
+    </g>
+  </g>
+
+  <!-- SLIDE FOOTER -->
+  <g transform="translate(28, 882)">
+    <text x="772" y="0" font-size="12" font-weight="700" fill="#003366" text-anchor="middle">@ Sovereign AI Workbench - Dual-Rail Air-Gapped Intelligence</text>
+    <text x="1540" y="0" font-size="16" font-weight="900" fill="#003366" text-anchor="end">3</text>
+  </g>
+</svg>

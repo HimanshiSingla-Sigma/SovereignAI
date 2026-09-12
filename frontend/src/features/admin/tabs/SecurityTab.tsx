@@ -154,20 +154,20 @@ export default function SecurityTab() {
             </button>
             {!sandboxResult && <EmptyState label="No execution run yet." />}
             {sandboxResult && (
-              <div className="space-y-3 rounded-ctl border border-hairline bg-[#0b0e13] p-3 text-[11px]">
+              <div className="space-y-3 rounded-ctl border border-slate-200 bg-slate-50/70 p-3.5 text-[11px] shadow-sm dark:border-hairline dark:bg-[#0b0e13]">
                 {/* Header with status, exit code, runtime, and toggle */}
-                <div className="flex items-center justify-between border-b border-hairline/60 pb-2.5">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-2.5 dark:border-hairline/60">
                   <div className="flex items-center gap-2">
                     <Badge severity={sandboxResult.status === 'SUCCESS' ? 'ok' : sandboxResult.status === 'BLOCKED' ? 'crit' : 'warn'}>
                       {sandboxResult.status}
                     </Badge>
                     {sandboxResult.exit_code !== undefined && (
-                      <span className="rounded bg-surface px-2 py-0.5 font-mono text-[10px] text-muted">
+                      <span className="rounded border border-slate-200 bg-white px-2 py-0.5 font-mono text-[10px] font-semibold text-slate-700 dark:border-hairline dark:bg-surface dark:text-muted">
                         Exit {sandboxResult.exit_code}
                       </span>
                     )}
                     {(sandboxResult.execution_time_ms !== undefined || sandboxResult.execution_time_seconds !== undefined) && (
-                      <span className="text-[10px] text-muted">
+                      <span className="text-[10px] font-medium text-slate-600 dark:text-muted">
                         {sandboxResult.execution_time_ms !== undefined
                           ? `${sandboxResult.execution_time_ms} ms`
                           : `${Math.round(Number(sandboxResult.execution_time_seconds) * 1000)} ms`}
@@ -177,26 +177,26 @@ export default function SecurityTab() {
                   <button
                     type="button"
                     onClick={() => setSandboxRawView(!sandboxRawView)}
-                    className="text-[10px] text-muted hover:text-ink underline"
+                    className="text-[10px] font-medium text-accent hover:underline"
                   >
                     {sandboxRawView ? 'Structured View' : 'Raw JSON'}
                   </button>
                 </div>
 
                 {sandboxRawView ? (
-                  <pre className="max-h-64 overflow-auto font-mono text-[10px] leading-relaxed text-muted">
+                  <pre className="max-h-64 overflow-auto rounded-ctl border border-slate-200 bg-white p-3 font-mono text-[10px] leading-relaxed text-slate-800 dark:border-hairline dark:bg-[#07090d] dark:text-slate-300">
                     {JSON.stringify(sandboxResult, null, 2)}
                   </pre>
                 ) : (
                   <div className="space-y-3">
                     {/* Summary */}
                     {sandboxResult.summary && (
-                      <p className="text-[11px] text-muted">{sandboxResult.summary}</p>
+                      <p className="text-[11px] font-medium text-slate-700 dark:text-muted">{sandboxResult.summary}</p>
                     )}
 
                     {/* Error and Violations Alert */}
                     {sandboxResult.error && (
-                      <div className="flex items-start gap-2 rounded bg-crit/10 p-2 text-crit text-[11px]">
+                      <div className="flex items-start gap-2 rounded-ctl border border-crit/30 bg-crit/10 p-2.5 text-crit text-[11px]">
                         <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                         <div>
                           <p className="font-semibold">{sandboxResult.error}</p>
@@ -212,42 +212,48 @@ export default function SecurityTab() {
                     )}
 
                     {/* Standard Output Console */}
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted">
-                        <Terminal className="h-3 w-3" /> Standard Output (stdout)
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-slate-600 dark:text-muted">
+                        <Terminal className="h-3.5 w-3.5 text-slate-500 dark:text-muted" /> Standard Output (stdout)
                       </div>
-                      <div className="rounded border border-hairline/60 bg-[#07090d] p-2.5 font-mono text-[11px] leading-relaxed text-ink">
+                      <div
+                        className={`rounded-ctl border border-l-4 p-3 font-mono text-[12px] leading-relaxed shadow-sm ${
+                          sandboxResult.status === 'BLOCKED' || sandboxResult.error
+                            ? 'border-crit/40 border-l-crit bg-red-50/80 text-crit dark:bg-crit/10'
+                            : 'border-slate-200 border-l-emerald-500 bg-white text-slate-900 dark:border-hairline/60 dark:border-l-emerald-400 dark:bg-[#07090d] dark:text-emerald-400'
+                        }`}
+                      >
                         {sandboxResult.stdout ? (
-                          <pre className="whitespace-pre-wrap font-mono">{sandboxResult.stdout}</pre>
+                          <pre className="whitespace-pre-wrap font-mono font-medium">{sandboxResult.stdout}</pre>
                         ) : (
-                          <span className="italic text-muted/60">(No standard output produced)</span>
+                          <span className="italic text-slate-400 dark:text-muted/60">(No standard output produced)</span>
                         )}
                       </div>
                     </div>
 
                     {/* Output Variables Table */}
                     {sandboxResult.output_variables && Object.keys(sandboxResult.output_variables).length > 0 && (
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted">
-                          <Code2 className="h-3 w-3" /> Captured Variables
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-slate-600 dark:text-muted">
+                          <Code2 className="h-3.5 w-3.5 text-slate-500 dark:text-muted" /> Captured Variables
                         </div>
-                        <div className="overflow-x-auto rounded border border-hairline/60">
+                        <div className="overflow-x-auto rounded-ctl border border-slate-200 dark:border-hairline/60">
                           <table className="w-full text-left font-mono text-[10px]">
-                            <thead className="bg-surface/80 text-muted border-b border-hairline/60">
+                            <thead className="border-b border-slate-200 bg-slate-100 text-slate-700 dark:border-hairline/60 dark:bg-surface/80 dark:text-muted">
                               <tr>
-                                <th className="px-2.5 py-1.5">Variable</th>
-                                <th className="px-2.5 py-1.5">Type</th>
-                                <th className="px-2.5 py-1.5">Value</th>
+                                <th className="px-2.5 py-1.5 font-semibold">Variable</th>
+                                <th className="px-2.5 py-1.5 font-semibold">Type</th>
+                                <th className="px-2.5 py-1.5 font-semibold">Value</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-hairline/40">
+                            <tbody className="divide-y divide-slate-100 bg-white dark:divide-hairline/40 dark:bg-transparent">
                               {Object.entries(sandboxResult.output_variables).map(([key, val]) => (
-                                <tr key={key} className="hover:bg-surface/30">
-                                  <td className="px-2.5 py-1 text-ink font-semibold">{key}</td>
-                                  <td className="px-2.5 py-1 text-accent">
+                                <tr key={key} className="hover:bg-slate-50 dark:hover:bg-surface/30">
+                                  <td className="px-2.5 py-1.5 font-semibold text-slate-900 dark:text-ink">{key}</td>
+                                  <td className="px-2.5 py-1.5 font-medium text-accent">
                                     {sandboxResult.variable_types?.[key] || typeof val}
                                   </td>
-                                  <td className="px-2.5 py-1 text-muted max-w-[200px] truncate">
+                                  <td className="max-w-[200px] truncate px-2.5 py-1.5 text-slate-700 dark:text-muted">
                                     {JSON.stringify(val)}
                                   </td>
                                 </tr>
@@ -259,15 +265,15 @@ export default function SecurityTab() {
                     )}
 
                     {/* Security & Isolation Telemetry */}
-                    <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-hairline/40 text-[10px]">
-                      <span className="inline-flex items-center gap-1 text-ok font-medium">
+                    <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200 dark:border-hairline/40 text-[10px]">
+                      <span className="inline-flex items-center gap-1 font-semibold text-ok">
                         <ShieldCheck className="h-3.5 w-3.5" />
                         {sandboxResult.security_audit?.ast_passed ? 'AST Policy Verified' : 'AST Verification Required'}
                       </span>
-                      <span className="text-muted">•</span>
-                      <span className="text-muted">Air-Gapped In-Memory</span>
-                      <span className="text-muted">•</span>
-                      <span className="text-muted">Zero Disk / Network</span>
+                      <span className="text-slate-300 dark:text-muted">•</span>
+                      <span className="font-medium text-slate-600 dark:text-muted">Air-Gapped In-Memory</span>
+                      <span className="text-slate-300 dark:text-muted">•</span>
+                      <span className="font-medium text-slate-600 dark:text-muted">Zero Disk / Network</span>
                     </div>
                   </div>
                 )}

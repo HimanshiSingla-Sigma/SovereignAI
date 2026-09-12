@@ -11,8 +11,47 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  :root,
+  html.dark {
     color-scheme: dark;
+    --color-base: 14 17 22;
+    --color-card: 18 22 28;
+    --color-sidebar: 11 14 19;
+    --color-hairline: 35 42 51;
+    --color-raised: 22 27 34;
+    --color-ink: 230 237 243;
+    --color-muted: 139 152 165;
+    --color-accent: 245 166 35;
+    --color-ok: 63 185 80;
+    --color-warn: 210 153 34;
+    --color-crit: 248 81 73;
+    --color-info: 34 211 238;
+
+    --grid-line: rgba(35, 42, 51, 0.35);
+    --scrollbar-track: #0b0e13;
+    --scrollbar-thumb: #232a33;
+    --scrollbar-thumb-hover: #33404d;
+  }
+
+  html.light {
+    color-scheme: light;
+    --color-base: 248 250 252;
+    --color-card: 255 255 255;
+    --color-sidebar: 255 255 255;
+    --color-hairline: 226 232 240;
+    --color-raised: 241 245 249;
+    --color-ink: 15 23 42;
+    --color-muted: 100 116 139;
+    --color-accent: 217 119 6;
+    --color-ok: 22 163 74;
+    --color-warn: 202 138 4;
+    --color-crit: 220 38 38;
+    --color-info: 2 132 199;
+
+    --grid-line: rgba(203, 213, 225, 0.45);
+    --scrollbar-track: #f1f5f9;
+    --scrollbar-thumb: #cbd5e1;
+    --scrollbar-thumb-hover: #94a3b8;
   }
 
   html,
@@ -25,8 +64,8 @@
     @apply bg-base text-ink font-sans antialiased;
     /* Subtle control-room grid texture. */
     background-image:
-      linear-gradient(rgba(35, 42, 51, 0.35) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(35, 42, 51, 0.35) 1px, transparent 1px);
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 44px 44px;
     background-attachment: fixed;
     overflow-x: hidden;
@@ -44,14 +83,14 @@
     height: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #0b0e13;
+    background: var(--scrollbar-track);
   }
   ::-webkit-scrollbar-thumb {
-    background: #232a33;
+    background: var(--scrollbar-thumb);
     border-radius: 6px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #33404d;
+    background: var(--scrollbar-thumb-hover);
   }
 
   :focus-visible {
@@ -94,7 +133,7 @@
   }
 
   .field {
-    @apply min-h-[44px] w-full rounded-ctl border border-hairline bg-[#0b0e13] px-3 text-sm text-ink
+    @apply min-h-[44px] w-full rounded-ctl border border-hairline bg-raised px-3 text-sm text-ink
       placeholder:text-muted/60 focus:border-accent/60 focus:outline-none;
   }
 
@@ -121,6 +160,175 @@
       #0e1116 32px
     );
     background-size: 64px 64px;
+  }
+
+  /* Light theme comprehensive styling */
+  html.light,
+  html.light body {
+    background-color: #f5f6f8 !important;
+    color: #0f172a !important;
+    background-image: none !important;
+  }
+
+  html.light aside {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  html.light header {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  html.light .panel {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03) !important;
+  }
+
+  html.light .panel-head {
+    border-color: #e2e8f0 !important;
+  }
+
+  html.light .field {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  html.light .btn {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #1e293b !important;
+  }
+
+  html.light .btn:hover {
+    background-color: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html.light .btn-primary {
+    background-color: #d97706 !important;
+    border-color: #b45309 !important;
+    color: #ffffff !important;
+  }
+
+  html.light .btn-danger {
+    background-color: #fef2f2 !important;
+    border-color: #fecaca !important;
+    color: #dc2626 !important;
+  }
+
+  html.light [class*="bg-raised"] {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  html.light [class*="border-hairline"] {
+    border-color: #e2e8f0 !important;
+  }
+
+  html.light [class*="bg-card"] {
+    background-color: #ffffff !important;
+  }
+
+  html.light [class*="bg-base"] {
+    background-color: #f5f6f8 !important;
+  }
+
+  html.light [class*="bg-sidebar"] {
+    background-color: #ffffff !important;
+  }
+
+  html.light select,
+  html.light select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html.light .chip {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #334155 !important;
+    font-weight: 500 !important;
+  }
+
+  html.light .chip:hover {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html.light .chip-active {
+    background-color: rgba(217, 119, 6, 0.12) !important;
+    border-color: #d97706 !important;
+    color: #9a3412 !important;
+    font-weight: 600 !important;
+  }
+
+  html.light [class*="bg-[#0b0e13]"] {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  html.light [class*="bg-[#07090d]"] {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  html.light [class*="text-ink"] {
+    color: #0f172a !important;
+  }
+
+  html.light [class*="text-muted"] {
+    color: #64748b !important;
+  }
+
+  html.light .hazard-tape {
+    background-image: repeating-linear-gradient(
+      45deg,
+      #dc2626 0,
+      #dc2626 16px,
+      #f8fafc 16px,
+      #f8fafc 32px
+    ) !important;
+  }
+
+  html.light [class*="bg-slate-950/"] {
+    background-color: rgba(255, 255, 255, 0.94);
+  }
+  html.light [class*="bg-slate-950 "] {
+    background-color: #ffffff;
+  }
+  html.light [class*="bg-slate-900/"] {
+    background-color: rgba(241, 245, 249, 0.88);
+  }
+  html.light [class*="bg-slate-900 "] {
+    background-color: #f1f5f9;
+  }
+  html.light [class*="border-slate-800"] {
+    border-color: #e2e8f0;
+  }
+  html.light [class*="border-slate-700"] {
+    border-color: #cbd5e1;
+  }
+  html.light .text-slate-400 {
+    color: #475569;
+  }
+  html.light .text-slate-300 {
+    color: #334155;
+  }
+  html.light .text-slate-200 {
+    color: #1e293b;
+  }
+  html.light .text-slate-100 {
+    color: #0f172a;
+  }
+  html.light h1.text-white,
+  html.light h2.text-white,
+  html.light h3.text-white {
+    color: #0f172a;
   }
 }
 

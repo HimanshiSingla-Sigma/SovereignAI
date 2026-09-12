@@ -5,19 +5,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Dark industrial SCADA control-room palette
-        base: '#0e1116',
-        card: '#12161c',
-        sidebar: '#0b0e13',
-        hairline: '#232a33',
-        raised: '#161b22',
-        ink: '#e6edf3',
-        muted: '#8b98a5',
-        accent: '#f5a623',
-        ok: '#3fb950',
-        warn: '#d29922',
-        crit: '#f85149',
-        info: '#22d3ee',
+        // Themeable SCADA industrial palette via CSS variables
+        base: 'rgb(var(--color-base) / <alpha-value>)',
+        card: 'rgb(var(--color-card) / <alpha-value>)',
+        sidebar: 'rgb(var(--color-sidebar) / <alpha-value>)',
+        hairline: 'rgb(var(--color-hairline) / <alpha-value>)',
+        raised: 'rgb(var(--color-raised) / <alpha-value>)',
+        ink: 'rgb(var(--color-ink) / <alpha-value>)',
+        muted: 'rgb(var(--color-muted) / <alpha-value>)',
+        accent: 'rgb(var(--color-accent) / <alpha-value>)',
+        ok: 'rgb(var(--color-ok) / <alpha-value>)',
+        warn: 'rgb(var(--color-warn) / <alpha-value>)',
+        crit: 'rgb(var(--color-crit) / <alpha-value>)',
+        info: 'rgb(var(--color-info) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],

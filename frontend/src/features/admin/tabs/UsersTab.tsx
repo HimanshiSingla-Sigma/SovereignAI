@@ -155,13 +155,13 @@ export default function UsersTab() {
                     <td className="px-4 py-3">
                       {canAssign ? (
                         <select
-                          className="min-h-[44px] rounded-ctl border border-hairline bg-[#0b0e13] px-2 text-xs text-ink"
+                          className="min-h-[38px] rounded-ctl border border-hairline bg-card px-2.5 py-1 text-xs font-medium text-ink transition-colors shadow-sm focus:border-accent focus:outline-none"
                           value={u.roles[0] ?? 'OPERATOR'}
                           onChange={(e) => void changeRole(u.id, e.target.value)}
                           disabled={updateUser.isPending}
                         >
                           {ROLES.map((r) => (
-                            <option key={r} value={r}>
+                            <option key={r} value={r} className="bg-card text-ink">
                               {r}
                             </option>
                           ))}

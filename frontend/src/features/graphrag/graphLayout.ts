@@ -56,15 +56,28 @@ const TYPE_RANK: Record<string, number> = {
   MaintenanceProcedure: 4,
 }
 
-export const TYPE_COLOR: Record<string, string> = {
-  Machine: '#f5a623',
-  Component: '#22d3ee',
-  FailureMode: '#f85149',
-  Incident: '#d29922',
-  MaintenanceProcedure: '#3fb950',
+export const TYPE_COLOR_DARK: Record<string, string> = {
+  Machine: '#f5a623',       // warm neon amber
+  Component: '#38bdf8',     // bright neon cyan
+  FailureMode: '#f85149',   // bright neon red
+  Incident: '#fb923c',      // warm neon orange
+  MaintenanceProcedure: '#4ade80', // bright neon green
 }
 
-export const typeColor = (type: string) => TYPE_COLOR[type] ?? '#8b98a5'
+export const TYPE_COLOR_LIGHT: Record<string, string> = {
+  Machine: '#d97706',       // deep rich amber
+  Component: '#0284c7',     // vivid deep cyan / sky blue
+  FailureMode: '#dc2626',   // vivid crimson red
+  Incident: '#ea580c',      // rich deep orange
+  MaintenanceProcedure: '#16a34a', // rich emerald green
+}
+
+export const TYPE_COLOR = TYPE_COLOR_DARK
+
+export function typeColor(type: string, isLight = false): string {
+  const palette = isLight ? TYPE_COLOR_LIGHT : TYPE_COLOR_DARK
+  return palette[type] ?? (isLight ? '#64748b' : '#8b98a5')
+}
 
 /**
  * Deterministic layered layout used by Lite mode (and as the starting state

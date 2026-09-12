@@ -1,14 +1,20 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 import WarRoom from './WarRoom'
 import { useEmergencyAudio, usePlantWatch } from '@/hooks/usePlantWatch'
 import { useEmergencyActive } from '@/store/alertStore'
+import { useSettingsStore, applyTheme } from '@/store/settingsStore'
 
 export default function AppShell() {
   const [navOpen, setNavOpen] = useState(false)
   const emergency = useEmergencyActive()
+  const theme = useSettingsStore((s) => s.theme)
+
+  useEffect(() => {
+    applyTheme(theme)
+  }, [theme])
 
   // Plant-wide live watch + klaxon, mounted once for the whole session.
   usePlantWatch()

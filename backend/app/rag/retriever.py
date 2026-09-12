@@ -21,7 +21,7 @@ class HybridRetriever:
         query_vec = LocalEmbeddingEngine.embed_text(query)
 
         # 2. Query vector store
-        candidates = LocalVectorStore.similarity_search(query_vec, top_k=top_k * 2)
+        candidates = LocalVectorStore.similarity_search(query_vec, top_k=max(25, top_k * 5))
 
         # 3. Lexical Keyword Scoring (BM25 heuristic) with Stopword Filtering & Reranking
         STOPWORDS = {

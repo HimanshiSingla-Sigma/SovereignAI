@@ -22,6 +22,10 @@ const SafetyPage = lazy(() => import('@/features/safety/SafetyPage'))
 const ApprovalsPage = lazy(() => import('@/features/approvals/ApprovalsPage'))
 const NetworkPage = lazy(() => import('@/features/network/NetworkPage'))
 const AdminPage = lazy(() => import('@/features/admin/AdminPage'))
+const StethoscopePage = lazy(() => import('@/features/stethoscope/StethoscopePage'))
+const StressAnalysisPage = lazy(() => import('@/features/stress/StressAnalysisPage'))
+const Transformer3DPage = lazy(() => import('@/features/transformer/Transformer3DPage'))
+const LedgerTamperPage = lazy(() => import('@/features/ledger/LedgerTamperPage'))
 
 export default function App() {
   const { token, stage, hydrating, hydrate } = useAuthStore()
@@ -80,6 +84,14 @@ export default function App() {
             }
           />
           <Route
+            path="/stethoscope"
+            element={
+              <RequirePermission permission="telemetry:read">
+                <StethoscopePage />
+              </RequirePermission>
+            }
+          />
+          <Route
             path="/telemetry"
             element={
               <RequirePermission permission="telemetry:read">
@@ -104,10 +116,26 @@ export default function App() {
             }
           />
           <Route
+            path="/stress-analysis"
+            element={
+              <RequirePermission permission="simulation:run">
+                <StressAnalysisPage />
+              </RequirePermission>
+            }
+          />
+          <Route
             path="/ai-assistant"
             element={
               <RequirePermission permission="ai:chat">
                 <AIAssistantPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/transformer-3d"
+            element={
+              <RequirePermission permission="ai:chat">
+                <Transformer3DPage />
               </RequirePermission>
             }
           />
@@ -140,6 +168,14 @@ export default function App() {
             element={
               <RequirePermission permission="safety:read">
                 <SafetyPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/ledger-tamper"
+            element={
+              <RequirePermission permission="safety:read">
+                <LedgerTamperPage />
               </RequirePermission>
             }
           />
