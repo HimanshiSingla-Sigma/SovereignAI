@@ -12,6 +12,12 @@ echo    [SHIELD] SOVEREIGN AI WORKBENCH - PORTABLE AIR-GAP APPLIANCE
 echo    Drive Root: %~dp0
 echo =================================================================
 
+REM Enforce 100% Offline Air-Gap Model Execution
+set "HF_HUB_OFFLINE=1"
+set "TRANSFORMERS_OFFLINE=1"
+set "HF_HUB_DISABLE_TELEMETRY=1"
+set "TOKENIZERS_PARALLELISM=false"
+
 REM 1. Check for Portable Embedded Python Runtime on the SSD
 set "PORTABLE_PY=%~dp0runtime\python_win\python.exe"
 set "VENV_PY=%~dp0backend\venv\Scripts\python.exe"

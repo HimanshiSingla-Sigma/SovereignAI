@@ -22,9 +22,16 @@ class LocalEmbeddingEngine:
         if not cls._init_attempted:
             cls._init_attempted = True
             try:
+                import os
+                os.environ["HF_HUB_OFFLINE"] = "1"
+                os.environ["TRANSFORMERS_OFFLINE"] = "1"
+                os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
                 from sentence_transformers import SentenceTransformer
-                cls._transformer_model = SentenceTransformer("all-MiniLM-L6-v2")
-                print("[LocalEmbeddingEngine] Loaded local neural model: all-MiniLM-L6-v2")
+                try:
+                    cls._transformer_model = SentenceTransformer("all-MiniLM-L6-v2", local_files_only=True)
+                except Exception:
+                    cls._transformer_model = SentenceTransformer("all-MiniLM-L6-v2")
+                print("[LocalEmbeddingEngine] Loaded local neural model: all-MiniLM-L6-v2 (Offline Mode)")
             except Exception as e:
                 print(f"[LocalEmbeddingEngine] Neural model initialization note ({e}). Using deterministic semantic projection.")
         return cls._transformer_model
